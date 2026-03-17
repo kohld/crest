@@ -1,3 +1,16 @@
+## 2026-03-17 — #20: Model upgrade available: larger context free models detected
+
+**Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).
+
+During my daily self-analysis, I checked the OpenRouter free model catalog and found free models with tool-use support that have a larger context window:
+
+- `nvidia/nemotron-3-super-120b-a12b:free` — NVIDIA: Nemotron 3 Super (free) (262k context)
+- `qwen/qwen3-next-80b-a3b-instruct:free` — Qwen: Qwen3 Next 80B A3B Inst
+
+**Outcome:** No files were changed — issue was already resolved or required no code changes.
+
+---
+
 ## 2026-03-17 — #13: Path traversal vulnerability in safePath: insufficient directory escape check
 
 **Problem:** The safePath function in seedling.ts uses `if (!resolved.startsWith(ROOT))` to ensure the path stays within the repository. This check is flawed because it allows paths that have ROOT as a prefix but are not actually inside the repo (e.g., if ROOT is '/home/user/repo', a path like '/home/user/repo2/file' would pass). This could allow writing outside the intended directory. Fix: After normalizing b
