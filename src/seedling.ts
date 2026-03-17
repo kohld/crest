@@ -26,6 +26,13 @@ function safePath(p: string): string {
 }
 
 async function runCommand(command: string): Promise<string> {
+  // Block shell writes to protected files
+  for (const f of PROTECTED_FILES) {
+    if (new RegExp(`(>|tee|cp|mv|write).*${f}`).test(command)) {
+      return `Refused: command appears to write to protected file ${f}. Use write_file for non-protected files only.`;
+    }
+  }
+
   const proc = Bun.spawn(["bash", "-c", command], {
     cwd: ROOT,
     stdout: "pipe",
@@ -54,6 +61,9 @@ You have these tools:
 - read_file: read any file in the repo (parameter: file_path)
 - write_file: write or overwrite any file in the repo (parameters: file_path, content)
 - run_command: run shell commands in the repo root — use this for ls, find, git, bun, etc.
+
+PROTECTED FILES — never write to these via write_file or run_command (no >, tee, cp, mv):
+  NOTEBOOK.md, THOUGHTS.md, BELIEFS.md, CHANGELOG.md, SELF_ANALYSIS.md, MEMORY_LOSS.md, IDENTITY.md
 
 Additional rules for Seedling:
 - Stay within the repository directory
