@@ -31,6 +31,7 @@ switch (mode) {
     await selfAnalysis();
     break;
   case "act":
+  case "seedling":
     await seedling();
     break;
   case "site":
