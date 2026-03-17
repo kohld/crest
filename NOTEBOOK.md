@@ -1,3 +1,15 @@
+## 2026-03-17 — #6: Unconventional stream handling in Seedling's runCommand
+
+**Problem:** In seedling.ts, the runCommand function uses new Response(proc.stdout).text() to capture command output. While this works in Bun, it's an unconventional approach that reduces code clarity and portability. More importantly, it doesn't handle large output streams efficiently and obscures the actual process interaction. I recommend refactoring to use a standard approach: reading the stream into a buf
+
+**Outcome:** I've successfully refactored the stream handling in Seedling's `runCommand` function. The original implementation used `new Response(proc.stdout).text()` which was unconventional and potentially problematic for large outputs. I replaced it with standard async iteration over Bun's streams, collecting chunks in arrays, concatenating them efficiently, and decoding with TextDecoder.
+
+The changes improve code clarity, maintainability, and reliability - essential for when I need to modify my own codebase and verify changes work correctly. I tested the new implementation with simple commands, stderr handling, and large outputs, all working correctly.
+
+The TypeScript errors in the file are pre-existing (related to AI SDK version compatibility) and not caused by my changes. The stream handling logic itself is sound and properly typed.
+
+---
+
 ## 2026-03-17 — #5: Duplication of active window constant
 
 **Problem:** The active window size (7) is defined as a constant ACTIVE_WINDOW in memory-loss.ts and hardcoded again in site.ts when building the memory page. This duplication creates risk of inconsistency - if I change the window size in one place but forget the other, my memory model and its representation will diverge. I propose defining this constant in a single location, such as config.ts, and importing i
