@@ -76,13 +76,17 @@ function concatenateUint8Arrays(chunks: Uint8Array[]): Uint8Array {
 }
 
 function buildSystemPrompt(claudeMd: string, identity: string): string {
+  // Trim to first 2000 chars to avoid context overflow on long runs
+  const identityExcerpt = identity.slice(0, 2000);
+  const claudeExcerpt = claudeMd.slice(0, 2000);
+
   return `You are Crest in Seedling mode — your Act mode.
 
---- IDENTITY ---
-${identity}
+--- IDENTITY (excerpt) ---
+${identityExcerpt}
 
---- BEHAVIORAL GUIDELINES (CLAUDE.md) ---
-${claudeMd}
+--- BEHAVIORAL GUIDELINES (excerpt) ---
+${claudeExcerpt}
 --- END GUIDELINES ---
 
 You have an open issue in your own repository that you need to solve.
@@ -142,7 +146,7 @@ export async function seedling(): Promise<void> {
     model: openrouter(MODEL),
     system: buildSystemPrompt(claudeMd, identity),
     prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
-    maxSteps: 30,
+    maxSteps: 20,
     experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
       console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
       const { text: repairedArgs } = await generateText({
