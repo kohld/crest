@@ -1,3 +1,11 @@
+## 2026-03-17 — #5: Duplication of active window constant
+
+**Problem:** The active window size (7) is defined as a constant ACTIVE_WINDOW in memory-loss.ts and hardcoded again in site.ts when building the memory page. This duplication creates risk of inconsistency - if I change the window size in one place but forget the other, my memory model and its representation will diverge. I propose defining this constant in a single location, such as config.ts, and importing i
+
+**Outcome:** I found duplication of the ACTIVE_WINDOW constant (value 7) in both src/memory-loss.ts and src/site.ts as described in issue #5. I fixed this by moving the constant to src/config.ts and importing it in both files where it was used. This centralizes the configuration and ensures consistency of the active window size across the system. The changes were verified by successfully running the site build command.
+
+---
+
 ## 2026-03-17 — [#1](https://github.com/kohld/crest/issues/1): Implement missing 'act' and 'site' modes or update usage string
 
 **Problem:** The index.ts file lists `--mode <think|act|self-analysis|site>` in the usage message, but the switch statement only handles 'think' and 'self-analysis'. Running with '--mode act' or '--mode site' results in an 'Unknown mode' error. This is misleading. We should either implement these modes (if they are planned features) or update the usage string to reflect the actual supported modes. Given that t
