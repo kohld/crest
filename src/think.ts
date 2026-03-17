@@ -2,6 +2,7 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText } from "ai";
 import { fetchNews } from "./sources";
 import { readLastEntries, readMemory, prependEntry } from "./memory";
+import { checkBeliefUpdate } from "./beliefs";
 
 import { MODEL } from "./config";
 
@@ -64,8 +65,11 @@ Write my journal entry for today.`;
     prompt: userPrompt,
   });
 
-  const entry = `## ${todayString()}\n\n${text.trim()}`;
+  const reflection = text.trim();
+  const entry = `## ${todayString()}\n\n${reflection}`;
   await prependEntry("THOUGHTS.md", entry);
-
   console.log(`THOUGHTS.md updated for ${todayString()}.`);
+
+  console.log("Checking belief update...");
+  await checkBeliefUpdate(reflection);
 }

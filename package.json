@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "think": "bun run src/index.ts --mode think",
-    "act": "bun run src/index.ts --mode act",
-    "self-analysis": "bun run src/index.ts --mode self-analysis",
-    "site": "bun run src/index.ts --mode site"
+    "self-analysis": "bun run src/index.ts --mode self-analysis"
   },
   "dependencies": {
     "ai": "^4.3.16",
