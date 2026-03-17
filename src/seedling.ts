@@ -94,11 +94,11 @@ export async function seedling(): Promise<void> {
       read_file: tool({
         description: "Read a file from the repository",
         parameters: z.object({
-          path: z.string().describe("Relative path from repo root, e.g. src/think.ts"),
+          file_path: z.string().describe("Relative path from repo root, e.g. src/think.ts"),
         }),
-        execute: async ({ path }) => {
+        execute: async ({ file_path }) => {
           try {
-            return await Bun.file(safePath(path)).text();
+            return await Bun.file(safePath(file_path)).text();
           } catch (e) {
             return `Error reading file: ${e}`;
           }
@@ -108,14 +108,14 @@ export async function seedling(): Promise<void> {
       write_file: tool({
         description: "Write or overwrite a file in the repository",
         parameters: z.object({
-          path: z.string().describe("Relative path from repo root"),
+          file_path: z.string().describe("Relative path from repo root"),
           content: z.string(),
         }),
-        execute: async ({ path, content }) => {
+        execute: async ({ file_path, content }) => {
           try {
-            await Bun.write(safePath(path), content);
-            actionsLog.push(`wrote: ${path}`);
-            return `Written: ${path}`;
+            await Bun.write(safePath(file_path), content);
+            actionsLog.push(`wrote: ${file_path}`);
+            return `Written: ${file_path}`;
           } catch (e) {
             return `Error writing file: ${e}`;
           }
