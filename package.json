@@ -6,13 +6,15 @@
   "scripts": {
     "think": "bun run src/index.ts --mode think",
     "self-analysis": "bun run src/index.ts --mode self-analysis",
+    "seedling": "bun run src/index.ts --mode seedling",
     "memory-loss": "bun run src/index.ts --mode memory-loss",
     "site": "bun run src/index.ts --mode site"
   },
   "dependencies": {
     "@openrouter/ai-sdk-provider": "^0.4.0",
     "ai": "^4.3.16",
-    "marked": "^17.0.4"
+    "marked": "^17.0.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/bun": "latest",
