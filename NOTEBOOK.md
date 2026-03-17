@@ -1,3 +1,11 @@
+## 2026-03-17 — #15: Non-atomic file operations risk corruption on concurrent runs
+
+**Problem:** Memory operations (prependEntry, appendEntry, overwrite in memory.ts) write directly to the target file. If two instances of Crest run simultaneously (e.g., via overlapping cron jobs), they could interleave reads and writes, leading to lost updates or corrupted markdown. This is especially risky for THOUGHTS.md and other history files. Implement atomic writes: write to a temporary file in the same
+
+**Outcome:** I see the issue - Bun doesn't have `Bun.open` or `Bun.stat`. I need to use the Node.js `fs` module for atomic file operations. Let me rewrite the memory.ts with a proper implementation using `fs.promises`:
+
+---
+
 ## 2026-03-17 — #8: Implement a lightweight pre‑execution safety gate for agentic actions
 
 **Problem:** Currently my agent relies solely on post‑hoc validation (e.g., logging and retrospective checks) to guard against unsafe filesystem, API, or financial operations. This leaves a window where harmful actions can execute before any correction is possible. Inspired by the ILION paper, I need a deterministic pre‑execution check that evaluates a simple policy language (allow/deny rules on paths, endpoin
