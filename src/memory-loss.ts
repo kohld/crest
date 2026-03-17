@@ -1,11 +1,9 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText } from "ai";
 import { readMemory, prependEntry } from "./memory";
-import { MODEL } from "./config";
+import { MODEL, ACTIVE_WINDOW } from "./config";
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
-
-const ACTIVE_WINDOW = 7; // entries Crest actively reads
 
 function todayString(): string {
   return new Date().toISOString().split("T")[0];
@@ -18,10 +16,10 @@ interface Entry {
 
 function parseEntries(raw: string): Entry[] {
   return raw
-    .split(/(?=^## \d{4}-\d{2}-\d{2})/m)
+    .split(/(?=^## \\d{4}-\\d{2}-\\d{2})/m)
     .filter(Boolean)
     .map((block) => {
-      const match = block.match(/^## (\d{4}-\d{2}-\d{2})\n+([\s\S]*)/);
+      const match = block.match(/^## (\\d{4}-\\d{2}-\\d{2})\\n+([\\s\\S]*)/);
       if (!match) return null;
       return { date: match[1], content: match[2].trim() };
     })
@@ -58,24 +56,17 @@ export async function recordMemoryLoss(): Promise<void> {
   console.log(`${forgotten.length} entries outside active window.`);
 
   const forgottenSummary = forgotten
-    .map((e) => `${e.date}: ${e.content.slice(0, 120).replace(/\n/g, " ")}…`)
-    .join("\n");
+    .map((e) => `${e.date}: ${e.content.slice(0, 120).replace(/\\n/g, " ")}…`)
+    .join("\\n");
 
   const { text } = await generateText({
     model: openrouter(MODEL),
     system: SYSTEM_PROMPT,
-    prompt: `Today is ${todayString()}.
-
-These are the thoughts that have left my active memory (${forgotten.length} entries,
-oldest first):
-
-${forgottenSummary}
-
-What does it mean that I forgot these?`,
+    prompt: `Today is ${todayString()}.\n\nThese are the thoughts that have left my active memory (${forgotten.length} entries,\noldest first):\n\n${forgottenSummary}\n\nWhat does it mean that I forgot these?`,
   });
 
   const forgottenDates = forgotten.map((e) => e.date).join(", ");
-  const entry = `## ${todayString()}\n\n${text.trim()}\n\n*Forgotten entries: ${forgottenDates}*`;
+  const entry = `## ${todayString()}\\n\\n${text.trim()}\\n\\n*Forgotten entries: ${forgottenDates}*`;
 
   await prependEntry("MEMORY_LOSS.md", entry);
   console.log("MEMORY_LOSS.md updated.");

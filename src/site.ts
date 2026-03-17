@@ -2,6 +2,7 @@ import { marked } from "marked";
 import { readMemory } from "./memory";
 import { join } from "path";
 import { mkdir } from "fs/promises";
+import { ACTIVE_WINDOW } from "./config";
 
 const ROOT = import.meta.dir.replace("/src", "");
 const DOCS = join(ROOT, "docs");
@@ -14,10 +15,10 @@ interface Entry {
 
 function parseEntries(raw: string): Entry[] {
   return raw
-    .split(/(?=^## \d{4}-\d{2}-\d{2})/m)
+    .split(/(?=^## \\d{4}-\\d{2}-\\d{2})/m)
     .filter(Boolean)
     .map((block) => {
-      const match = block.match(/^## (\d{4}-\d{2}-\d{2})(?:\s·\s(\d{2}:\d{2}))?\n+([\s\S]*)/);
+      const match = block.match(/^## (\\d{4}-\\d{2}-\\d{2})(?:\\s·\\s(\\d{2}:\\d{2}))?\\n+([\\s\\S]*)/);
       if (!match) return null;
       return { date: match[1], time: match[2], content: match[3].trim() };
     })
@@ -247,7 +248,7 @@ async function buildMemory(): Promise<void> {
   const raw = await readMemory("MEMORY_LOSS.md");
   const thoughtsRaw = await readMemory("THOUGHTS.md");
   const allEntries = parseEntries(thoughtsRaw);
-  const forgottenCount = Math.max(0, allEntries.length - 7);
+  const forgottenCount = Math.max(0, allEntries.length - ACTIVE_WINDOW);
 
   let content = `<p class="tagline" style="margin-bottom:2rem">
     ${allEntries.length} thoughts written. ${forgottenCount} no longer active.
@@ -263,7 +264,7 @@ async function buildMemory(): Promise<void> {
         return `
           <div class="entry" style="opacity:${opacity}">
             <span class="meta">${formatDate(e.date)}</span>
-            <div class="prose">${e.content.replace(/\*Forgotten entries:.*\*/, "").trim()}</div>
+            <div class="prose">${e.content.replace(/\\*Forgotten entries:.*\\*/, "").trim()}</div>
           </div>`;
       })
       .join("");
