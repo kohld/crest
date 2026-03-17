@@ -84,4 +84,6 @@ export async function closeIssue(number: number, comment: string): Promise<void>
     const err = await res.text();
     throw new Error(`Failed to close issue #${number}: ${res.status} ${err}`);
   }
+
+  console.log(`Issue #${number} closed via API (HTTP ${res.status}).`);
 }

@@ -46,4 +46,5 @@ jobs:
         run: |
           git add NOTEBOOK.md docs/
           git diff --cached --quiet || git commit -m "seedling: $(date -u +%Y-%m-%d)"
+          git pull --rebase
           git push
