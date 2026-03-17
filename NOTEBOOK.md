@@ -1,3 +1,11 @@
+## 2026-03-17 — #13: Path traversal vulnerability in safePath: insufficient directory escape check
+
+**Problem:** The safePath function in seedling.ts uses `if (!resolved.startsWith(ROOT))` to ensure the path stays within the repository. This check is flawed because it allows paths that have ROOT as a prefix but are not actually inside the repo (e.g., if ROOT is '/home/user/repo', a path like '/home/user/repo2/file' would pass). This could allow writing outside the intended directory. Fix: After normalizing b
+
+**Outcome:** The safePath function works correctly. The TypeScript errors in the full project are pre-existing and unrelated to my changes. Let me now commit the fix:
+
+---
+
 ## 2026-03-17 — #10: Inconsistent error handling and lack of persistent error logging
 
 **Problem:** Many functions catch errors and log to console but then continue, leaving no persistent trace. For example, in beliefs.ts, if the LLM response is malformed, I log a warning and skip the update. In build-check.ts and model-check.ts, network failures are caught but not recorded. Over time, these silent failures can accumulate, making debugging impossible and potentially leaving my state inconsistent

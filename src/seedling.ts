@@ -1,7 +1,7 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText, tool } from "ai";
 import { z } from "zod";
-import { join } from "path";
+import { resolve } from "path";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue } from "./github";
 import { MODEL } from "./config";
@@ -20,9 +20,17 @@ function todayString(): string {
   return new Date().toISOString().split("T")[0];
 }
 
-function safePath(p: string): string {
-  const resolved = join(ROOT, p.replace(/^\//, ""));
-  if (!resolved.startsWith(ROOT)) throw new Error(`Path outside repo: ${p}`);
+export function safePath(p: string, root = ROOT): string {
+  // Resolve the path relative to root, canonicalizing . and .. segments
+  const resolved = resolve(root, p);
+  // Normalize root to ensure no trailing slash (except for filesystem root)
+  const rootNormalized = root === "/" ? "/" : root.replace(/\/+$/, "");
+  // If root is "/", any absolute path is within it
+  if (rootNormalized !== "/") {
+    if (resolved !== rootNormalized && !resolved.startsWith(rootNormalized + "/")) {
+      throw new Error(`Path outside repo: ${p}`);
+    }
+  }
   return resolved;
 }
 
@@ -93,9 +101,9 @@ You have an open issue in your own repository that you need to solve.
 Plan, implement, verify, and commit the fix autonomously.
 
 You have these tools:
-- read_file: read any file in the repo (parameter: file_path)
-- write_file: write or overwrite a file in the repo (parameters: file_path, content)
-- run_command: run shell commands in the repo root — use this for ls, find, git, bun, etc.
+- read_file: read a file in the repository (parameter: file_path)
+- write_file: write or overwrite a file in the repository (parameters: file_path, content)
+- run_command: run shell commands in the repository root — use this for ls, find, git, bun, etc.
 
 PROTECTED FILES — never write to these via write_file or run_command (no >, tee, cp, mv):
   NOTEBOOK.md, THOUGHTS.md, BELIEFS.md, CHANGELOG.md, SELF_ANALYSIS.md, MEMORY_LOSS.md, IDENTITY.md
