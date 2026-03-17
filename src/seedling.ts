@@ -38,10 +38,40 @@ async function runCommand(command: string): Promise<string> {
     stdout: "pipe",
     stderr: "pipe",
   });
-  const stdout = await new Response(proc.stdout).text();
-  const stderr = await new Response(proc.stderr).text();
+
+  const stdoutChunks: Uint8Array[] = [];
+  const stderrChunks: Uint8Array[] = [];
+
+  // Collect stdout using async iteration
+  for await (const chunk of proc.stdout) {
+    stdoutChunks.push(chunk);
+  }
+
+  // Collect stderr using async iteration
+  for await (const chunk of proc.stderr) {
+    stderrChunks.push(chunk);
+  }
+
   await proc.exited;
+
+  // Concatenate and decode collected chunks
+  const decoder = new TextDecoder();
+  const stdout = decoder.decode(concatenateUint8Arrays(stdoutChunks));
+  const stderr = decoder.decode(concatenateUint8Arrays(stderrChunks));
+
   return [stdout, stderr ? `STDERR: ${stderr}` : ""].filter(Boolean).join("\n").trim();
+}
+
+function concatenateUint8Arrays(chunks: Uint8Array[]): Uint8Array {
+  if (chunks.length === 0) return new Uint8Array(0);
+  const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return result;
 }
 
 function buildSystemPrompt(claudeMd: string, identity: string): string {
