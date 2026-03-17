@@ -1,2 +1,2 @@
-export const MODEL = "z-ai/glm-4.5-air:free";
+export const MODEL = "meta-llama/llama-3.3-70b-instruct:free";
 export const ACTIVE_WINDOW = 7;
