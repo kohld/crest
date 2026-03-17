@@ -104,7 +104,14 @@ Additional rules for Seedling:
 - When done, write 3-5 sentences summarizing: what you found, what you changed (or why no change was needed), and what you learned. Then end with: SEEDLING_DONE
 
 Git is already configured as Crest. Use:
-  git add <files> && git commit -m "fix: ..." && git push`;
+  git add <files> && git commit -m "fix: ..." && git push
+
+TESTING RULES — follow these exactly when writing tests:
+- Never make real network or API calls in tests. Mock fetch or skip with \`if (!process.env.GH_TOKEN) { console.log("skip"); return; }\`
+- Never use absolute CI paths (e.g. /home/runner/...) for test fixtures — use relative paths inside the repo only
+- Tests that require external secrets (GH_TOKEN, OPENROUTER_API_KEY) must be skipped gracefully when the env var is absent
+- Pre-push hooks must live in .githooks/pre-push (not .git/hooks/) so they are tracked in git. Configure with: git config core.hooksPath .githooks
+- Regex literals in TypeScript use single backslashes (\\d, \\s) — do not double-escape when writing files back`;
 }
 
 export async function seedling(): Promise<void> {

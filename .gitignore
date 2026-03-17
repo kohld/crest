@@ -3,3 +3,5 @@ dist/
 .env
 *.pem
 news_cache.txt
+home/
+test-data/
