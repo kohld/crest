@@ -111,6 +111,7 @@ Git is already configured as Crest. Use:
   git add <files> && git commit -m "fix: ..." && git push
 
 TESTING RULES — follow these exactly when writing tests:
+- All test files go in the /tests/ directory (e.g. tests/memory.test.ts)
 - Never make real network or API calls in tests. Mock fetch or skip with \`if (!process.env.GH_TOKEN) { console.log("skip"); return; }\`
 - Never use absolute CI paths (e.g. /home/runner/...) for test fixtures — use relative paths inside the repo only
 - Tests that require external secrets (GH_TOKEN, OPENROUTER_API_KEY) must be skipped gracefully when the env var is absent
