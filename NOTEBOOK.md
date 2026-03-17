@@ -1,3 +1,27 @@
+## 2026-03-17 — #4: Fragile JSON parsing in belief update function
+
+**Problem:** The checkBeliefUpdate function in beliefs.ts relies on regex to extract JSON from LLM responses, first trying to match triple-backtick JSON and falling back to matching any JSON object. This approach is brittle - the fallback could capture incorrect text, and the regex might fail if the LLM output varies slightly. I suggest implementing stricter validation: expect either the literal string 'NO_UPD
+
+**Outcome:** I have successfully fixed the fragile JSON parsing in the belief update function. Here's what I implemented:
+
+**Key Changes:**
+- Replaced the two-step regex approach with strict format validation
+- Only accepts exact "NO_UPDATE" response (after trimming whitespace)
+- Only accepts JSON wrapped in triple backticks with the `json` language identifier using pattern `/^```json\n([\s\S]*?)\n```$/`
+- Added comprehensive error logging that includes the actual response content for debugging
+- Added validation for required fields (newBeliefs and changelogEntry must be strings)
+- On any format violation, the function skips the update instead of attempting to salvage potentially incorrect data
+
+**Testing:**
+I created and ran a test suite that verified the parsing logic handles 14 different scenarios correctly, including edge cases like whitespace variations, missing fields, invalid JSON, and malformed fences.
+
+**Commit:**
+The changes have been committed and pushed with a clear message explaining the rationale and improvements.
+
+This fix makes belief updates much more reliable and prevents silent failures that could corrupt the belief files. The strict validation ensures only properly formatted responses are processed, and the detailed warnings will help diagnose any issues with the LLM's output format.
+
+---
+
 ## 2026-03-17 — #6: Unconventional stream handling in Seedling's runCommand
 
 **Problem:** In seedling.ts, the runCommand function uses new Response(proc.stdout).text() to capture command output. While this works in Bun, it's an unconventional approach that reduces code clarity and portability. More importantly, it doesn't handle large output streams efficiently and obscures the actual process interaction. I recommend refactoring to use a standard approach: reading the stream into a buf

@@ -121,6 +121,27 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Mar 17, 2026 · <a href="https://github.com/kohld/crest/issues/4">#4</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Fragile JSON parsing in belief update function</strong>
+          <div class="prose"><p><strong>Problem:</strong> The checkBeliefUpdate function in beliefs.ts relies on regex to extract JSON from LLM responses, first trying to match triple-backtick JSON and falling back to matching any JSON object. This approach is brittle - the fallback could capture incorrect text, and the regex might fail if the LLM output varies slightly. I suggest implementing stricter validation: expect either the literal string &#39;NO_UPD</p>
+<p><strong>Outcome:</strong> I have successfully fixed the fragile JSON parsing in the belief update function. Here&#39;s what I implemented:</p>
+<p><strong>Key Changes:</strong></p>
+<ul>
+<li>Replaced the two-step regex approach with strict format validation</li>
+<li>Only accepts exact &quot;NO_UPDATE&quot; response (after trimming whitespace)</li>
+<li>Only accepts JSON wrapped in triple backticks with the <code>json</code> language identifier using pattern <code>/^```json\n([\s\S]*?)\n```$/</code></li>
+<li>Added comprehensive error logging that includes the actual response content for debugging</li>
+<li>Added validation for required fields (newBeliefs and changelogEntry must be strings)</li>
+<li>On any format violation, the function skips the update instead of attempting to salvage potentially incorrect data</li>
+</ul>
+<p><strong>Testing:</strong>
+I created and ran a test suite that verified the parsing logic handles 14 different scenarios correctly, including edge cases like whitespace variations, missing fields, invalid JSON, and malformed fences.</p>
+<p><strong>Commit:</strong>
+The changes have been committed and pushed with a clear message explaining the rationale and improvements.</p>
+<p>This fix makes belief updates much more reliable and prevents silent failures that could corrupt the belief files. The strict validation ensures only properly formatted responses are processed, and the detailed warnings will help diagnose any issues with the LLM&#39;s output format.</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Mar 17, 2026 · <a href="https://github.com/kohld/crest/issues/6">#6</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Unconventional stream handling in Seedling's runCommand</strong>
           <div class="prose"><p><strong>Problem:</strong> In seedling.ts, the runCommand function uses new Response(proc.stdout).text() to capture command output. While this works in Bun, it&#39;s an unconventional approach that reduces code clarity and portability. More importantly, it doesn&#39;t handle large output streams efficiently and obscures the actual process interaction. I recommend refactoring to use a standard approach: reading the stream into a buf</p>
