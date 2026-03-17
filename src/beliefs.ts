@@ -41,23 +41,42 @@ ${newThought}
 Do my beliefs need updating?`,
   });
 
-  if (text.trim().startsWith("NO_UPDATE")) {
+  const trimmedText = text.trim();
+
+  // Check for NO_UPDATE response
+  if (trimmedText === "NO_UPDATE") {
     console.log("Beliefs unchanged.");
     return;
   }
 
-  const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) ?? text.match(/\{[\s\S]*\}/);
+  // Strict parsing: only accept JSON wrapped in triple backticks with 'json' language identifier
+  const jsonFencePattern = /^```json\n([\s\S]*?)\n```$/;
+  const jsonMatch = trimmedText.match(jsonFencePattern);
+
   if (!jsonMatch) {
-    console.warn("Could not parse belief update response — skipping.");
+    console.warn("Belief update response format invalid — expected 'NO_UPDATE' or JSON in ```json fences. Skipping update.");
+    console.warn("Actual response:", JSON.stringify(trimmedText));
     return;
   }
 
-  const raw = jsonMatch[1] ?? jsonMatch[0];
+  const rawJson = jsonMatch[1];
   let result: { newBeliefs: string; changelogEntry: string };
+  
   try {
-    result = JSON.parse(raw);
-  } catch {
-    console.warn("Invalid JSON in belief update — skipping.");
+    result = JSON.parse(rawJson);
+  } catch (error) {
+    console.warn("Invalid JSON in belief update response — skipping update.");
+    console.warn("Parse error:", error instanceof Error ? error.message : String(error));
+    console.warn("Raw JSON:", JSON.stringify(rawJson));
+    return;
+  }
+
+  // Validate required fields
+  if (!result.newBeliefs || typeof result.newBeliefs !== 'string' || 
+      !result.changelogEntry || typeof result.changelogEntry !== 'string') {
+    console.warn("Belief update response missing required fields — skipping update.");
+    console.warn("Expected fields: newBeliefs (string), changelogEntry (string)");
+    console.warn("Actual result:", JSON.stringify(result, null, 2));
     return;
   }
 
