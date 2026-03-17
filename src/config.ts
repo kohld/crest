@@ -1,2 +1,2 @@
-export const MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
+export const MODEL = "qwen/qwen3-coder-480b-a35b:free";
 export const ACTIVE_WINDOW = 7;
