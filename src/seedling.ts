@@ -136,11 +136,11 @@ export async function seedling(): Promise<void> {
       list_files: tool({
         description: "List files in a directory",
         parameters: z.object({
-          dir: z.string().describe("Relative path from repo root, e.g. src or .github/workflows"),
+          directory: z.string().describe("Relative path from repo root, e.g. src or .github/workflows"),
         }),
-        execute: async ({ dir }) => {
+        execute: async ({ directory }) => {
           try {
-            const files = await readdir(safePath(dir), { recursive: true });
+            const files = await readdir(safePath(directory), { recursive: true });
             return (files as string[]).join("\n");
           } catch (e) {
             return `Error listing files: ${e}`;
