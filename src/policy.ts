@@ -39,8 +39,8 @@ export const DEFAULT_POLICY: PolicyRule[] = [
       "mkfs",
       "shutdown",
       "reboot",
-      // Writing to device files or system directories
-      ">\\s*/dev/",
+      // Writing to device files or system directories (/dev/null is safe, exclude it)
+      ">\\s*/dev/(?!null)",
       "curl\\s+.*\\|\\s*sh",
       "wget\\s+.*\\-O\\s*/",
       // Direct writes to protected files via shell
