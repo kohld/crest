@@ -1,0 +1,59 @@
+## ArXiv cs.AI
+- Human Attribution of Causality to AI Across Agency, Misuse, and Misalignment
+  https://arxiv.org/abs/2603.13236
+  arXiv:2603.13236v1 Announce Type: new 
+Abstract: AI-related incidents are becoming increasingly frequent and severe, ranging from safety failures to misuse by malicious actors. In such complex situations, identifying which elements caused an adverse outcome, the problem of cause selection, is a critical first step for establishing liability. This paper investigates folk perceptions of causal respo
+- A Dual-Path Generative Framework for Zero-Day Fraud Detection in Banking Systems
+  https://arxiv.org/abs/2603.13237
+  arXiv:2603.13237v1 Announce Type: new 
+Abstract: High-frequency banking environments face a critical trade-off between low-latency fraud detection and the regulatory explainability demanded by GDPR. Traditional rule-based and discriminative models struggle with "zero-day" attacks due to extreme class imbalance and the lack of historical precedents. This paper proposes a Dual-Path Generative Framew
+- Benchmarking Zero-Shot Reasoning Approaches for Error Detection in Solidity Smart Contracts
+  https://arxiv.org/abs/2603.13239
+  arXiv:2603.13239v1 Announce Type: new 
+Abstract: Smart contracts play a central role in blockchain systems by encoding financial and operational logic. Still, their susceptibility to subtle security flaws poses significant risks of financial loss and erosion of trust. LLMs create new opportunities for automating vulnerability detection, yet the effectiveness of different prompting strategies and m
+- Think First, Diffuse Fast: Improving Diffusion Language Model Reasoning via Autoregressive Plan Conditioning
+  https://arxiv.org/abs/2603.13243
+  arXiv:2603.13243v1 Announce Type: new 
+Abstract: Diffusion large language models (dLLMs) generate text via iterative denoising but consistently underperform on multi-step reasoning. We hypothesize this gap stems from a coordination problem: AR models build coherence token-by-token, while diffusion models must coordinate all positions simultaneously. We propose plan conditioning, a training-free me
+- Automating Document Intelligence in Statutory City Planning
+  https://arxiv.org/abs/2603.13245
+  arXiv:2603.13245v1 Announce Type: new 
+Abstract: UK planning authorities face a legislative conflict between the Planning Act, which mandates public access to application documents, and the Data Protection Act, which requires protection of personal information. This situation creates a manually intensive workload for processing large document volumes, diverting planning officers to administrative 
+- Multi-Axis Trust Modeling for Interpretable Account Hijacking Detection
+  https://arxiv.org/abs/2603.13246
+  arXiv:2603.13246v1 Announce Type: new 
+Abstract: This paper proposes a Hadith-inspired multi-axis trust modeling framework, motivated by a structurally analogous problem in classical Hadith scholarship: assessing the trustworthiness of information sources using interpretable, multidimensional criteria rather than a single anomaly score. We translate five trust axes - long-term integrity (adalah), 
+- ILION: Deterministic Pre-Execution Safety Gates for Agentic AI Systems
+  https://arxiv.org/abs/2603.13247
+  arXiv:2603.13247v1 Announce Type: new 
+Abstract: The proliferation of autonomous AI agents capable of executing real-world actions - filesystem operations, API calls, database modifications, financial transactions - introduces a class of safety risk not addressed by existing content-moderation infrastructure. Current text-safety systems evaluate linguistic content for harm categories such as viole
+- ManiBench: A Benchmark for Testing Visual-Logic Drift and Syntactic Hallucinations in Manim Code Generation
+  https://arxiv.org/abs/2603.13251
+  arXiv:2603.13251v1 Announce Type: new 
+Abstract: Traditional benchmarks like HumanEval and MBPP test logic and syntax effectively, but fail when code must produce dynamic, pedagogical visuals. We introduce ManiBench, a specialized benchmark evaluating LLM performance in generating Manim CE code, where temporal fidelity and version-aware API correctness are critical. ManiBench targets two key failu
+- When Alpha Breaks: Two-Level Uncertainty for Safe Deployment of Cross-Sectional Stock Rankers
+  https://arxiv.org/abs/2603.13252
+  arXiv:2603.13252v1 Announce Type: new 
+Abstract: Cross-sectional ranking models are often deployed as if point predictions were sufficient: the model outputs scores and the portfolio follows the induced ordering. Under non-stationarity, rankers can fail during regime shifts. In the AI Stock Forecaster, a LightGBM ranker performs well overall at a 20-day horizon, yet the 2024 holdout coincides with
+- Distilling Deep Reinforcement Learning into Interpretable Fuzzy Rules: An Explainable AI Framework
+  https://arxiv.org/abs/2603.13257
+  arXiv:2603.13257v1 Announce Type: new 
+Abstract: Deep Reinforcement Learning (DRL) agents achieve remarkable performance in continuous control but remain opaque, hindering deployment in safety-critical domains. Existing explainability methods either provide only local insights (SHAP, LIME) or employ over-simplified surrogates failing to capture continuous dynamics (decision trees). This work propo
+
+## Hacker News
+- Web LLM – WebGPU Powered Inference of Large Language Models
+  https://github.com/mlc-ai/web-llm
+- Show HN: My AI Native Resume
+  https://ai.jakegaylor.com/
+- Show HN: Opper AI – Task-Completion API for LLMs
+  https://opper.ai/
+- Show HN: AI Timeline – 171 LLMs from Transformer (2017) to GPT-5.3 (2026)
+  https://llm-timeline.com/
+- Show HN: TutoriaLLM – AI Integrated programming tutorials
+  https://github.com/TutoriaLLM/TutoriaLLM
+- Show HN: AI assisted image editing with audio instructions
+  https://github.com/ShaShekhar/aaiela
+- Show HN: Darwin – Automate Your GitHub Project with AI
+  https://darwin-ai.dev
+- A Visual Intro to Large Language Models
+  https://docs.cohere.ai/intro-to-llms/

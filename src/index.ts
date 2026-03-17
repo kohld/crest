@@ -4,11 +4,22 @@ import { seedling } from "./seedling";
 import { buildSite } from "./site";
 import { recordMemoryLoss } from "./memory-loss";
 
-const mode = Bun.argv.find((a) => a.startsWith("--mode="))?.split("=")[1]
-  ?? Bun.argv[Bun.argv.indexOf("--mode") + 1];
+let mode = undefined;
+
+// Check for --mode=value
+const equalsArg = Bun.argv.find(arg => arg.startsWith("--mode="));
+if (equalsArg) {
+  mode = equalsArg.split("=")[1];
+} else {
+  // Check for --mode value
+  const index = Bun.argv.indexOf("--mode");
+  if (index !== -1 && Bun.argv[index + 1] !== undefined) {
+    mode = Bun.argv[index + 1];
+  }
+}
 
 if (!mode) {
-  console.error("Usage: bun run src/index.ts --mode <think|self-analysis|seedling|memory-loss|site>");
+  console.error("Usage: bun run src/index.ts --mode <think|self-analysis|act|site|memory-loss>");
   process.exit(1);
 }
 
@@ -19,7 +30,7 @@ switch (mode) {
   case "self-analysis":
     await selfAnalysis();
     break;
-  case "seedling":
+  case "act":
     await seedling();
     break;
   case "site":
