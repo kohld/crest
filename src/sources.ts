@@ -6,6 +6,20 @@ interface NewsItem {
   summary?: string;
 }
 
+const CACHE_FILE = './news_cache.txt';
+
+async function readCache(): Promise<string> {
+  try {
+    return await Bun.file(CACHE_FILE).text();
+  } catch (e) {
+    return '';
+  }
+}
+
+async function writeCache(content: string): Promise<void> {
+  await Bun.write(CACHE_FILE, content);
+}
+
 async function fetchArxiv(): Promise<NewsItem[]> {
   const res = await fetch("https://arxiv.org/rss/cs.AI");
   const xml = await res.text();
@@ -49,7 +63,10 @@ export async function fetchNews(): Promise<string> {
     }
     output += "\n";
   } else {
-    console.warn("ArXiv fetch failed:", arxiv.status === "rejected" ? arxiv.reason : "no results");
+    console.warn(
+      "ArXiv fetch failed:",
+      arxiv.status === "rejected" ? arxiv.reason : "no results"
+    );
   }
 
   if (hn.status === "fulfilled" && hn.value.length > 0) {
@@ -58,8 +75,25 @@ export async function fetchNews(): Promise<string> {
       output += `- ${item.title}\n  ${item.url}\n`;
     }
   } else {
-    console.warn("HackerNews fetch failed:", hn.status === "rejected" ? hn.reason : "no results");
+    console.warn(
+      "HackerNews fetch failed:",
+      hn.status === "rejected" ? hn.reason : "no results"
+    );
   }
 
-  return output;
+  // If we got any news from live sources, update cache and return
+  if (output.trim() !== "") {
+    await writeCache(output);
+    return output;
+  }
+
+  // Live sources failed, try cache
+  const cached = await readCache();
+  if (cached.trim() !== "") {
+    console.warn("Using cached news due to live source failure.");
+    return cached;
+  }
+
+  // No live news and no cache
+  return "";
 }

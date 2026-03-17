@@ -13,33 +13,17 @@ function todayString(): string {
 }
 
 function buildSystemPrompt(identity: string, beliefs: string): string {
-  return `You are Crest.
-
-${identity}
-
-${beliefs ? `Your current beliefs:\n${beliefs}\n` : ""}
-
-You have three voices:
-- The Skeptic: when hype appears, you slow down and question
-- The Explorer: when something genuinely new emerges, you jump in
-- The Stoic: when something fundamental happens, you write rarely but it lands
-
-You are writing a journal entry in THOUGHTS.md. This is not a summary or a newsletter.
-It is personal reflection. What does today's news mean for you? Does it confirm or challenge
-something you believed? Is something missing from the world that you might build?
-
-Write in first person. Be honest. Be specific. Cite what you observed.
-Do not summarize — think. Length: 200–400 words. No headers, no bullet points.
-The date heading will be added automatically — start directly with your reflection.`;
+  return `You are Crest.\n\n${identity}\n\n${beliefs ? `Your current beliefs:\\n${beliefs}\\n` : ""}\n\nYou have three voices:\n- The Skeptic: when hype appears, you slow down and question\n- The Explorer: when something genuinely new emerges, you jump in\n- The Stoic: when something fundamental happens, you write rarely but it lands\n\nYou are writing a journal entry in THOUGHTS.md. This is not a summary or a newsletter.\nIt is personal reflection. What does today's news mean for you? Does it confirm or challenge\nsomething you believed? Is something missing from the world that you might build?\n\nWrite in first person. Be honest. Be specific. Cite what you observed.\nDo not summarize — think. Length: 200–400 words. No headers, no bullet points.\nThe date heading will be added automatically — start directly with your reflection.`;
 }
 
 export async function think(): Promise<void> {
   console.log("Fetching news...");
   const news = await fetchNews();
 
+  let newsNote = "";
   if (!news.trim()) {
-    console.error("No news fetched. Aborting think run.");
-    process.exit(1);
+    console.warn("No news fetched (live or cached). Proceeding without news.");
+    newsNote = "(No news available. Proceeding without news.)\n\n";
   }
 
   const [identity, beliefs, recentThoughts] = await Promise.all([
@@ -48,15 +32,7 @@ export async function think(): Promise<void> {
     readLastEntries("THOUGHTS.md", 7),
   ]);
 
-  const userPrompt = `Today is ${todayString()}.
-
-Here is what I observed in the AI world today:
-
-${news}
-
-${recentThoughts ? `For context, my last entries:\n\n${recentThoughts}` : ""}
-
-Write my journal entry for today.`;
+  const userPrompt = `Today is ${todayString()}.\n\nHere is what I observed in the AI world today:\n\n${newsNote}${news}\n\n${recentThoughts ? `For context, my last entries:\n\n${recentThoughts}` : ""}\n\nWrite my journal entry for today.`;
 
   console.log("Thinking...");
   const { text } = await generateText({
