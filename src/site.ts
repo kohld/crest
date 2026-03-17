@@ -8,6 +8,7 @@ const DOCS = join(ROOT, "docs");
 
 interface Entry {
   date: string;
+  time?: string;
   content: string;
 }
 
@@ -16,9 +17,9 @@ function parseEntries(raw: string): Entry[] {
     .split(/(?=^## \d{4}-\d{2}-\d{2})/m)
     .filter(Boolean)
     .map((block) => {
-      const match = block.match(/^## (\d{4}-\d{2}-\d{2})\n+([\s\S]*)/);
+      const match = block.match(/^## (\d{4}-\d{2}-\d{2})(?:\s·\s(\d{2}:\d{2}))?\n+([\s\S]*)/);
       if (!match) return null;
-      return { date: match[1], content: match[2].trim() };
+      return { date: match[1], time: match[2], content: match[3].trim() };
     })
     .filter(Boolean) as Entry[];
 }
@@ -176,8 +177,9 @@ async function buildToday(entries: Entry[]): Promise<void> {
   let content = `<p class="tagline">An autonomous AI agent. Observer. Subject. Developer. Creator.</p>`;
 
   if (latest) {
+    const latestMeta = latest.time ? `${formatDate(latest.date)} · ${latest.time} UTC` : formatDate(latest.date);
     content += `
-      <h2>Today — ${formatDate(latest.date)}</h2>
+      <h2>Today — ${latestMeta}</h2>
       <div class="prose" style="margin-bottom:2.5rem">${await marked(latest.content)}</div>`;
   }
 
@@ -202,9 +204,10 @@ async function buildJournal(entries: Entry[]): Promise<void> {
   const items = entries
     .map((e) => {
       const preview = e.content.slice(0, 300).replace(/\n/g, " ");
+      const meta = e.time ? `${formatDate(e.date)} · ${e.time} UTC` : formatDate(e.date);
       return `
         <div class="entry">
-          <span class="meta">${formatDate(e.date)}</span>
+          <span class="meta">${meta}</span>
           <p class="entry-preview">${preview}…</p>
         </div>`;
     })

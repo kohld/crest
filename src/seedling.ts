@@ -78,7 +78,8 @@ export async function seedling(): Promise<void> {
     readMemory("IDENTITY.md"),
   ]);
 
-  const issue = issues[0];
+  // Prioritize issues labeled "seedling" (self-initiated builds) over self-analysis issues
+  const issue = issues.find((i) => i.labels.includes("seedling")) ?? issues[0];
   console.log(`Seedling working on issue #${issue.number}: ${issue.title}`);
 
   const actionsLog: string[] = [];
