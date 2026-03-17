@@ -5,6 +5,7 @@ import { join } from "path";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue } from "./github";
 import { MODEL } from "./config";
+import { enforcePolicy } from "./policy";
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 const ROOT = import.meta.dir.replace("/src", "");
@@ -89,7 +90,7 @@ Plan, implement, verify, and commit the fix autonomously.
 
 You have these tools:
 - read_file: read any file in the repo (parameter: file_path)
-- write_file: write or overwrite any file in the repo (parameters: file_path, content)
+- write_file: write or overwrite a file in the repo (parameters: file_path, content)
 - run_command: run shell commands in the repo root — use this for ls, find, git, bun, etc.
 
 PROTECTED FILES — never write to these via write_file or run_command (no >, tee, cp, mv):
@@ -166,6 +167,9 @@ export async function seedling(): Promise<void> {
           file_path: z.string().describe("Relative path from repo root, e.g. src/think.ts"),
         }),
         execute: async ({ file_path }) => {
+          // Pre-execution policy check
+          enforcePolicy("read_file", { file_path });
+
           try {
             return await Bun.file(safePath(file_path)).text();
           } catch (e) {
@@ -181,6 +185,9 @@ export async function seedling(): Promise<void> {
           content: z.string(),
         }),
         execute: async ({ file_path, content }) => {
+          // Pre-execution policy check
+          enforcePolicy("write_file", { file_path, content });
+
           const filename = file_path.split("/").pop() ?? file_path;
           if (PROTECTED_FILES.has(filename)) {
             return `Refused: ${file_path} is a protected history file and must not be overwritten.`;
@@ -201,6 +208,9 @@ export async function seedling(): Promise<void> {
           command: z.string().describe("Shell command to run, e.g. 'bun run think' or 'git status'"),
         }),
         execute: async ({ command }) => {
+          // Pre-execution policy check
+          enforcePolicy("run_command", { command });
+
           try {
             const result = await runCommand(command);
             if (command.startsWith("git commit")) actionsLog.push(`committed: ${command}`);
