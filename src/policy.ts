@@ -107,10 +107,16 @@ export function evaluatePolicy(action: string, args: Record<string, any>): Polic
   // Collect all rules that apply to this action
   const relevantRules = DEFAULT_POLICY.filter(r => r.action === "*" || r.action === action);
 
+  // For file operations, only check the path — not the file content.
+  // Checking content would cause false positives (e.g. a test file mentioning /etc/passwd).
+  const targetString = (action === "write_file" || action === "read_file")
+    ? JSON.stringify({ file_path: args.file_path ?? "" }).toLowerCase()
+    : JSON.stringify(args).toLowerCase();
+
   // Check deny patterns first
   for (const rule of relevantRules) {
     if (rule.deny) {
-      const argsString = JSON.stringify(args).toLowerCase();
+      const argsString = targetString;
       for (const pattern of rule.deny) {
         try {
           const regex = new RegExp(pattern, "i");
@@ -136,7 +142,7 @@ export function evaluatePolicy(action: string, args: Record<string, any>): Polic
     }
   }
   if (allowPatterns.length > 0) {
-    const argsString = JSON.stringify(args).toLowerCase();
+    const argsString = targetString;
     let matched = false;
     for (const pattern of allowPatterns) {
       try {
