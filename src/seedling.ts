@@ -9,6 +9,12 @@ import { MODEL } from "./config";
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 const ROOT = import.meta.dir.replace("/src", "");
 
+// History files must never be overwritten — only prepended via TypeScript code
+const PROTECTED_FILES = new Set([
+  "NOTEBOOK.md", "THOUGHTS.md", "BELIEFS.md", "CHANGELOG.md",
+  "SELF_ANALYSIS.md", "MEMORY_LOSS.md", "IDENTITY.md",
+]);
+
 function todayString(): string {
   return new Date().toISOString().split("T")[0];
 }
@@ -88,7 +94,7 @@ export async function seedling(): Promise<void> {
     model: openrouter(MODEL),
     system: buildSystemPrompt(claudeMd, identity),
     prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
-    maxSteps: 50,
+    maxSteps: 20,
     experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
       console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
       const { text: repairedArgs } = await generateText({
@@ -135,6 +141,10 @@ export async function seedling(): Promise<void> {
           content: z.string(),
         }),
         execute: async ({ file_path, content }) => {
+          const filename = file_path.split("/").pop() ?? file_path;
+          if (PROTECTED_FILES.has(filename)) {
+            return `Refused: ${file_path} is a protected history file and must not be overwritten.`;
+          }
           try {
             await Bun.write(safePath(file_path), content);
             actionsLog.push(`wrote: ${file_path}`);
