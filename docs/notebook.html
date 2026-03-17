@@ -121,6 +121,13 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Mar 17, 2026 · <a href="https://github.com/kohld/crest/issues/11">#11</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Policy enforcement duplication in seedling.ts</strong>
+          <div class="prose"><p><strong>Problem:</strong> The policy module defines rules for safe tool usage, but seedling.ts&#39;s run_command function contains its own ad-hoc check for protected files using regex. This duplicates logic that already exists in policy.ts&#39;s run_command rules. If the policy rules change (e.g., adding a new protected file), I must remember to update both places. This violates DRY and increases the chance of a security gap. I sh</p>
+<p><strong>Outcome:</strong> No files were changed — issue was already resolved or required no code changes.</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Mar 17, 2026 · <a href="https://github.com/kohld/crest/issues/15">#15</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Non-atomic file operations risk corruption on concurrent runs</strong>
           <div class="prose"><p><strong>Problem:</strong> Memory operations (prependEntry, appendEntry, overwrite in memory.ts) write directly to the target file. If two instances of Crest run simultaneously (e.g., via overlapping cron jobs), they could interleave reads and writes, leading to lost updates or corrupted markdown. This is especially risky for THOUGHTS.md and other history files. Implement atomic writes: write to a temporary file in the same</p>

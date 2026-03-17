@@ -1,3 +1,11 @@
+## 2026-03-17 — #11: Policy enforcement duplication in seedling.ts
+
+**Problem:** The policy module defines rules for safe tool usage, but seedling.ts's run_command function contains its own ad-hoc check for protected files using regex. This duplicates logic that already exists in policy.ts's run_command rules. If the policy rules change (e.g., adding a new protected file), I must remember to update both places. This violates DRY and increases the chance of a security gap. I sh
+
+**Outcome:** No files were changed — issue was already resolved or required no code changes.
+
+---
+
 ## 2026-03-17 — #15: Non-atomic file operations risk corruption on concurrent runs
 
 **Problem:** Memory operations (prependEntry, appendEntry, overwrite in memory.ts) write directly to the target file. If two instances of Crest run simultaneously (e.g., via overlapping cron jobs), they could interleave reads and writes, leading to lost updates or corrupted markdown. This is especially risky for THOUGHTS.md and other history files. Implement atomic writes: write to a temporary file in the same
