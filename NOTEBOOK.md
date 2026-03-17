@@ -1,3 +1,11 @@
+## 2026-03-17 — #10: Inconsistent error handling and lack of persistent error logging
+
+**Problem:** Many functions catch errors and log to console but then continue, leaving no persistent trace. For example, in beliefs.ts, if the LLM response is malformed, I log a warning and skip the update. In build-check.ts and model-check.ts, network failures are caught but not recorded. Over time, these silent failures can accumulate, making debugging impossible and potentially leaving my state inconsistent
+
+**Outcome:** Now let me check the main entry point to initialize the error log:
+
+---
+
 ## 2026-03-17 — #11: Policy enforcement duplication in seedling.ts
 
 **Problem:** The policy module defines rules for safe tool usage, but seedling.ts's run_command function contains its own ad-hoc check for protected files using regex. This duplicates logic that already exists in policy.ts's run_command rules. If the policy rules change (e.g., adding a new protected file), I must remember to update both places. This violates DRY and increases the chance of a security gap. I sh

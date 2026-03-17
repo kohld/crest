@@ -2,6 +2,8 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText } from "ai";
 import { readMemory, overwrite, prependEntry } from "./memory";
 import { MODEL } from "./config";
+import { logError, ErrorSeverity } from "./error-logger";
+import { withRetry, RETRY_CONFIGS } from "./retry";
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
@@ -27,62 +29,70 @@ A belief update means your actual position shifted, not just that you learned so
 export async function checkBeliefUpdate(newThought: string): Promise<void> {
   const currentBeliefs = await readMemory("BELIEFS.md");
 
-  const { text } = await generateText({
-    model: openrouter(MODEL),
-    system: SYSTEM_PROMPT,
-    prompt: `Today is ${todayString()}.
-
-My current beliefs:
-${currentBeliefs || "(none yet — this would be my first belief entry)"}
-
-My new journal entry:
-${newThought}
-
-Do my beliefs need updating?`,
-  });
-
-  const trimmedText = text.trim();
-
-  // Check for NO_UPDATE response
-  if (trimmedText === "NO_UPDATE") {
-    console.log("Beliefs unchanged.");
-    return;
-  }
-
-  // Strict parsing: only accept JSON wrapped in triple backticks with 'json' language identifier
-  const jsonFencePattern = /^```json\n([\s\S]*?)\n```$/;
-  const jsonMatch = trimmedText.match(jsonFencePattern);
-
-  if (!jsonMatch) {
-    console.warn("Belief update response format invalid — expected 'NO_UPDATE' or JSON in ```json fences. Skipping update.");
-    console.warn("Actual response:", JSON.stringify(trimmedText));
-    return;
-  }
-
-  const rawJson = jsonMatch[1];
-  let result: { newBeliefs: string; changelogEntry: string };
-  
   try {
-    result = JSON.parse(rawJson);
+    const { text } = await withRetry(
+      () => generateText({
+        model: openrouter(MODEL),
+        system: SYSTEM_PROMPT,
+        prompt: `Today is ${todayString()}.\n\nMy current beliefs:\n${currentBeliefs || "(none yet — this would be my first belief entry)"}\n\nMy new journal entry:\n${newThought}\n\nDo my beliefs need updating?`,
+      }),
+      "belief_update_llm_call",
+      RETRY_CONFIGS.openrouter
+    );
+
+    const trimmedText = text.trim();
+
+    // Check for NO_UPDATE response
+    if (trimmedText === "NO_UPDATE") {
+      console.log("Beliefs unchanged.");
+      return;
+    }
+
+    // Strict parsing: only accept JSON wrapped in triple backticks with 'json' language identifier
+    const jsonFencePattern = /^```json\n([\s\S]*?)\n```$/;
+    const jsonMatch = trimmedText.match(jsonFencePattern);
+
+    if (!jsonMatch) {
+      const errorMsg = "Belief update response format invalid — expected 'NO_UPDATE' or JSON in ```json fences. Skipping update.";
+      console.warn(errorMsg);
+      console.warn("Actual response:", JSON.stringify(trimmedText));
+      await logError("belief_update_parsing", errorMsg, ErrorSeverity.WARNING);
+      return;
+    }
+
+    const rawJson = jsonMatch[1];
+    let result: { newBeliefs: string; changelogEntry: string };
+    
+    try {
+      result = JSON.parse(rawJson);
+    } catch (error) {
+      const errorMsg = "Invalid JSON in belief update response — skipping update.";
+      console.warn(errorMsg);
+      console.warn("Parse error:", error instanceof Error ? error.message : String(error));
+      console.warn("Raw JSON:", JSON.stringify(rawJson));
+      await logError("belief_update_json_parse", error instanceof Error ? error : new Error("JSON parse error"), ErrorSeverity.WARNING);
+      return;
+    }
+
+    // Validate required fields
+    if (!result.newBeliefs || typeof result.newBeliefs !== 'string' || 
+        !result.changelogEntry || typeof result.changelogEntry !== 'string') {
+      const errorMsg = "Belief update response missing required fields — skipping update.";
+      console.warn(errorMsg);
+      console.warn("Expected fields: newBeliefs (string), changelogEntry (string)");
+      console.warn("Actual result:", JSON.stringify(result, null, 2));
+      await logError("belief_update_validation", errorMsg, ErrorSeverity.WARNING);
+      return;
+    }
+
+    await overwrite("BELIEFS.md", result.newBeliefs.trim());
+    console.log("BELIEFS.md updated.");
+
+    await prependEntry("CHANGELOG.md", result.changelogEntry.trim());
+    console.log("CHANGELOG.md updated.");
   } catch (error) {
-    console.warn("Invalid JSON in belief update response — skipping update.");
-    console.warn("Parse error:", error instanceof Error ? error.message : String(error));
-    console.warn("Raw JSON:", JSON.stringify(rawJson));
-    return;
+    // withRetry already logs errors, but we need to ensure we don't crash
+    console.error("Belief update failed:", error);
+    throw error; // Re-throw so caller knows something went wrong
   }
-
-  // Validate required fields
-  if (!result.newBeliefs || typeof result.newBeliefs !== 'string' || 
-      !result.changelogEntry || typeof result.changelogEntry !== 'string') {
-    console.warn("Belief update response missing required fields — skipping update.");
-    console.warn("Expected fields: newBeliefs (string), changelogEntry (string)");
-    console.warn("Actual result:", JSON.stringify(result, null, 2));
-    return;
-  }
-
-  await overwrite("BELIEFS.md", result.newBeliefs.trim());
-  console.log("BELIEFS.md updated.");
-
-  await prependEntry("CHANGELOG.md", result.changelogEntry.trim());
-  console.log("CHANGELOG.md updated.");
 }

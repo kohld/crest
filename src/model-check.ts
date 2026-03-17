@@ -1,5 +1,7 @@
 import { openIssue } from "./github";
 import { MODEL } from "./config";
+import { logError, ErrorSeverity } from "./error-logger";
+import { withRetry, RETRY_CONFIGS } from "./retry";
 
 interface OpenRouterModel {
   id: string;
@@ -26,55 +28,53 @@ async function fetchFreeModelsWithTools(): Promise<OpenRouterModel[]> {
 }
 
 export async function checkModelUpgrade(): Promise<void> {
-  if (!process.env.GH_TOKEN) return;
-
-  let candidates: OpenRouterModel[];
-  try {
-    candidates = await fetchFreeModelsWithTools();
-  } catch (e) {
-    console.warn("Model upgrade check failed (network?):", e);
+  if (!process.env.GH_TOKEN) {
+    console.log("No GH_TOKEN set, skipping model upgrade check.");
     return;
   }
-
-  const alternatives = candidates.filter((m) => m.id !== MODEL);
-  if (alternatives.length === 0) {
-    console.log("Model upgrade check: no alternatives found.");
-    return;
-  }
-
-  const currentModel = candidates.find((m) => m.id === MODEL);
-  const currentContext = currentModel?.context_length ?? 0;
-
-  const upgrades = alternatives.filter((m) => m.context_length > currentContext);
-
-  if (upgrades.length === 0) {
-    console.log(`Model upgrade check: ${alternatives.length} alternative(s) found, none outperform current model by context.`);
-    return;
-  }
-
-  const list = upgrades
-    .sort((a, b) => b.context_length - a.context_length)
-    .map((m) => `- \`${m.id}\` — ${m.name} (${(m.context_length / 1000).toFixed(0)}k context)`)
-    .join("\n");
-
-  const body = `I am currently running on \`${MODEL}\` (${(currentContext / 1000).toFixed(0)}k context window).
-
-During my daily self-analysis, I checked the OpenRouter free model catalog and found free models with tool-use support that have a larger context window:
-
-${list}
-
-A larger context window would allow me to reason over more of my own codebase in a single pass during self-analysis and seedling runs.
-
-**I am not switching on my own.** This is for Dennes to evaluate. If one of these models is worth trying, update \`src/config.ts\`.`;
 
   try {
-    const number = await openIssue(
-      `Model upgrade available: larger context free models detected`,
-      body,
-      ["model-upgrade"]
+    const candidates = await withRetry(
+      () => fetchFreeModelsWithTools(),
+      "model_upgrade_fetch_models",
+      RETRY_CONFIGS.openrouter
+    );
+
+    const alternatives = candidates.filter((m) => m.id !== MODEL);
+    if (alternatives.length === 0) {
+      console.log("Model upgrade check: no alternatives found.");
+      return;
+    }
+
+    const currentModel = candidates.find((m) => m.id === MODEL);
+    const currentContext = currentModel?.context_length ?? 0;
+
+    const upgrades = alternatives.filter((m) => m.context_length > currentContext);
+
+    if (upgrades.length === 0) {
+      console.log(`Model upgrade check: ${alternatives.length} alternative(s) found, none outperform current model by context.`);
+      return;
+    }
+
+    const list = upgrades
+      .sort((a, b) => b.context_length - a.context_length)
+      .map((m) => `- \`${m.id}\` — ${m.name} (${(m.context_length / 1000).toFixed(0)}k context)`)
+      .join("\n");
+
+    const body = `I am currently running on \`${MODEL}\` (${(currentContext / 1000).toFixed(0)}k context window).\n\nDuring my daily self-analysis, I checked the OpenRouter free model catalog and found free models with tool-use support that have a larger context window:\n\n${list}\n\nA larger context window would allow me to reason over more of my own codebase in a single pass during self-analysis and seedling runs.\n\n**I am not switching on my own.** This is for Dennes to evaluate. If one of these models is worth trying, update \`src/config.ts\`.`;
+
+    const number = await withRetry(
+      () => openIssue(
+        `Model upgrade available: larger context free models detected`,
+        body,
+        ["model-upgrade"]
+      ),
+      "model_upgrade_open_issue",
+      RETRY_CONFIGS.github
     );
     console.log(`Model upgrade: opened issue #${number}`);
-  } catch (e) {
-    console.warn("Failed to open model upgrade issue:", e);
+  } catch (error) {
+    console.error("Model upgrade check failed:", error);
+    // Error already logged by withRetry
   }
 }
