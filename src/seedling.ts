@@ -164,7 +164,7 @@ export async function seedling(): Promise<void> {
   try {
     await closeIssue(
       issue.number,
-      `Addressed by Crest (Seedling mode). See NOTEBOOK.md for details.`
+      `Addressed by Crest (Seedling mode). See [NOTEBOOK.md](https://github.com/${process.env.GITHUB_REPOSITORY ?? "kohld/crest"}/blob/main/NOTEBOOK.md) for details.`
     );
     console.log(`Issue #${issue.number} closed.`);
   } catch (e) {
