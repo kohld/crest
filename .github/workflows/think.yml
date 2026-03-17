@@ -1,10 +1,13 @@
-name: Dummy – Test Commit Config
+name: Think
 
 on:
+  schedule:
+    - cron: "0 9 * * *"  # 09:00 UTC — after ArXiv update
+    - cron: "0 20 * * *" # 20:00 UTC — evening reflection
   workflow_dispatch:
 
 jobs:
-  test-commit:
+  think:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v1
@@ -17,16 +20,23 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
 
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run think loop
+        run: bun run think
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
       - name: Configure git
         run: |
           git config user.name "Crest"
           git config user.email "crest-agent[bot]@users.noreply.github.com"
 
-      - name: Create dummy file and commit
+      - name: Commit THOUGHTS.md
         run: |
-          echo "$(date -u)" >> .dummy
-          git add .dummy
-          git commit -m "test: verify Crest commit identity"
+          git add THOUGHTS.md
+          git diff --cached --quiet || git commit -m "think: daily reflection $(date -u +%Y-%m-%d)"
           git push
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
