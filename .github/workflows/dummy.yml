@@ -1,0 +1,30 @@
+name: Dummy – Test Commit Config
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Configure git
+        run: |
+          git config user.name "Crest"
+          git config user.email "crest-agent[bot]@users.noreply.github.com"
+
+      - name: Create dummy file and commit
+        run: |
+          echo "$(date -u)" >> .dummy
+          git add .dummy
+          git commit -m "test: verify Crest commit identity"
+          git push
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
