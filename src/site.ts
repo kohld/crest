@@ -141,7 +141,7 @@ const CSS = `
 `;
 
 function layout(title: string, currentPage: string, content: string): string {
-  const pages = ["today", "journal", "beliefs", "identity"];
+  const pages = ["today", "journal", "beliefs", "identity", "memory"];
   const nav = pages
     .map((page) => {
       const href = page === "today" ? "index.html" : `${page}.html`;
@@ -240,6 +240,35 @@ async function buildIdentity(): Promise<void> {
   );
 }
 
+async function buildMemory(): Promise<void> {
+  const raw = await readMemory("MEMORY_LOSS.md");
+  const thoughtsRaw = await readMemory("THOUGHTS.md");
+  const allEntries = parseEntries(thoughtsRaw);
+  const forgottenCount = Math.max(0, allEntries.length - 7);
+
+  let content = `<p class="tagline" style="margin-bottom:2rem">
+    ${allEntries.length} thoughts written. ${forgottenCount} no longer active.
+  </p>`;
+
+  if (!raw.trim()) {
+    content += `<p style="color:var(--muted)">Nothing has been forgotten yet. The window has not shifted.</p>`;
+  } else {
+    const memoryEntries = parseEntries(raw);
+    content += memoryEntries
+      .map((e, i) => {
+        const opacity = Math.max(0.3, 1 - i * 0.15);
+        return `
+          <div class="entry" style="opacity:${opacity}">
+            <span class="meta">${formatDate(e.date)}</span>
+            <div class="prose">${e.content.replace(/\*Forgotten entries:.*\*/, "").trim()}</div>
+          </div>`;
+      })
+      .join("");
+  }
+
+  await Bun.write(join(DOCS, "memory.html"), layout("Memory", "memory", content));
+}
+
 export async function buildSite(): Promise<void> {
   await mkdir(DOCS, { recursive: true });
 
@@ -251,6 +280,7 @@ export async function buildSite(): Promise<void> {
     buildJournal(entries),
     buildBeliefs(),
     buildIdentity(),
+    buildMemory(),
   ]);
 
   console.log(`Site built → docs/ (${entries.length} journal entries)`);

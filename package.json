@@ -6,6 +6,7 @@
   "scripts": {
     "think": "bun run src/index.ts --mode think",
     "self-analysis": "bun run src/index.ts --mode self-analysis",
+    "memory-loss": "bun run src/index.ts --mode memory-loss",
     "site": "bun run src/index.ts --mode site"
   },
   "dependencies": {
