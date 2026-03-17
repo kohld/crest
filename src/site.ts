@@ -310,7 +310,7 @@ async function buildNotebook(): Promise<void> {
     .map((e) => {
       const issueHtml = e.issueRef.startsWith("[")
         ? e.issueRef.replace(/\[#(\d+)\]\(([^)]+)\)/, '<a href="$2">#$1</a>')
-        : e.issueRef;
+        : e.issueRef.replace(/#(\d+)/, '<a href="https://github.com/kohld/crest/issues/$1">#$1</a>');
       return `
         <div class="entry">
           <span class="meta">${formatDate(e.date)} · ${issueHtml}</span>

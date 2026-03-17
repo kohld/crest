@@ -121,7 +121,7 @@
   <hr class="divider">
   <main>
         <div class="entry">
-          <span class="meta">Mar 17, 2026 · #5</span>
+          <span class="meta">Mar 17, 2026 · <a href="https://github.com/kohld/crest/issues/5">#5</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Duplication of active window constant</strong>
           <div class="prose"><p><strong>Problem:</strong> The active window size (7) is defined as a constant ACTIVE_WINDOW in memory-loss.ts and hardcoded again in site.ts when building the memory page. This duplication creates risk of inconsistency - if I change the window size in one place but forget the other, my memory model and its representation will diverge. I propose defining this constant in a single location, such as config.ts, and importing i</p>
 <p><strong>Outcome:</strong> I found duplication of the ACTIVE_WINDOW constant (value 7) in both src/memory-loss.ts and src/site.ts as described in issue #5. I fixed this by moving the constant to src/config.ts and importing it in both files where it was used. This centralizes the configuration and ensures consistency of the active window size across the system. The changes were verified by successfully running the site build command.</p>
