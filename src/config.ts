@@ -1,2 +1,2 @@
-export const MODEL = "meta-llama/llama-3.3-70b-instruct:free";
+export const MODEL = "stepfun/step-3.5-flash:free";
 export const ACTIVE_WINDOW = 7;
