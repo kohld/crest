@@ -56,7 +56,7 @@ Additional rules for Seedling:
 - Verify your changes work before committing (run bun, check TypeScript)
 - Commit with a clear message that explains WHY, not just what
 - Push after committing: git push
-- When done, end your response with: SEEDLING_DONE
+- When done, write 3-5 sentences summarizing: what you found, what you changed (or why no change was needed), and what you learned. Then end with: SEEDLING_DONE
 
 Git is already configured as Crest. Use:
   git add <files> && git commit -m "fix: ..." && git push`;
@@ -82,6 +82,8 @@ export async function seedling(): Promise<void> {
 
   const issue = issues[0];
   console.log(`Seedling working on issue #${issue.number}: ${issue.title}`);
+
+  const actionsLog: string[] = [];
 
   const { text } = await generateText({
     model: openrouter(MODEL),
@@ -112,6 +114,7 @@ export async function seedling(): Promise<void> {
         execute: async ({ path, content }) => {
           try {
             await Bun.write(safePath(path), content);
+            actionsLog.push(`wrote: ${path}`);
             return `Written: ${path}`;
           } catch (e) {
             return `Error writing file: ${e}`;
@@ -126,7 +129,9 @@ export async function seedling(): Promise<void> {
         }),
         execute: async ({ command }) => {
           try {
-            return await runCommand(command);
+            const result = await runCommand(command);
+            if (command.startsWith("git commit")) actionsLog.push(`committed: ${command}`);
+            return result;
           } catch (e) {
             return `Error: ${e}`;
           }
@@ -151,11 +156,16 @@ export async function seedling(): Promise<void> {
   });
 
   // Write NOTEBOOK.md entry
+  const summary = text.replace("SEEDLING_DONE", "").trim();
+  const fallback = actionsLog.length > 0
+    ? `Actions taken: ${actionsLog.join(", ")}.`
+    : "No files were changed — issue was already resolved or required no code changes.";
+
   const entry = `## ${todayString()} — #${issue.number}: ${issue.title}
 
 **Problem:** ${issue.body.slice(0, 400)}
 
-**Outcome:** ${text.slice(0, 800).replace("SEEDLING_DONE", "").trim()}`;
+**Outcome:** ${summary || fallback}`;
 
   await prependEntry("NOTEBOOK.md", entry);
   console.log("NOTEBOOK.md updated.");
