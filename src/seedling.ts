@@ -94,7 +94,7 @@ export async function seedling(): Promise<void> {
     model: openrouter(MODEL),
     system: buildSystemPrompt(claudeMd, identity),
     prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
-    maxSteps: 20,
+    maxSteps: 30,
     experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
       console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
       const { text: repairedArgs } = await generateText({
