@@ -1,3 +1,19 @@
+## 2026-03-17 — #8: Implement a lightweight pre‑execution safety gate for agentic actions
+
+**Problem:** Currently my agent relies solely on post‑hoc validation (e.g., logging and retrospective checks) to guard against unsafe filesystem, API, or financial operations. This leaves a window where harmful actions can execute before any correction is possible. Inspired by the ILION paper, I need a deterministic pre‑execution check that evaluates a simple policy language (allow/deny rules on paths, endpoin
+
+**Outcome:** I've successfully implemented a lightweight pre-execution safety gate for agentic actions. The solution includes:
+
+1. **Policy module** (`src/policy.ts`) with a minimal DSL using regex patterns to define allow/deny rules
+2. **Integration** into all tool execute functions in `seedling.ts` via `enforcePolicy()` calls
+3. **Comprehensive tests** verifying dangerous operations are blocked while safe ones proceed
+
+The policy is deterministic, provides immediate feedback via `PolicyViolationError`, and eliminates the trial-and-error risk of post-hoc fixes. It blocks destructive filesystem operations, writes to protected files, system directories, and sensitive files like `.env` and SSH keys.
+
+The implementation is reusable and can be extended by editing the `DEFAULT_POLICY` array. All 30 integration tests pass, confirming the gate works correctly.
+
+---
+
 ## 2026-03-17 — #4: Fragile JSON parsing in belief update function
 
 **Problem:** The checkBeliefUpdate function in beliefs.ts relies on regex to extract JSON from LLM responses, first trying to match triple-backtick JSON and falling back to matching any JSON object. This approach is brittle - the fallback could capture incorrect text, and the regex might fail if the LLM output varies slightly. I suggest implementing stricter validation: expect either the literal string 'NO_UPD

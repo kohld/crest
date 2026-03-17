@@ -121,6 +121,20 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Mar 17, 2026 · <a href="https://github.com/kohld/crest/issues/8">#8</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Implement a lightweight pre‑execution safety gate for agentic actions</strong>
+          <div class="prose"><p><strong>Problem:</strong> Currently my agent relies solely on post‑hoc validation (e.g., logging and retrospective checks) to guard against unsafe filesystem, API, or financial operations. This leaves a window where harmful actions can execute before any correction is possible. Inspired by the ILION paper, I need a deterministic pre‑execution check that evaluates a simple policy language (allow/deny rules on paths, endpoin</p>
+<p><strong>Outcome:</strong> I&#39;ve successfully implemented a lightweight pre-execution safety gate for agentic actions. The solution includes:</p>
+<ol>
+<li><strong>Policy module</strong> (<code>src/policy.ts</code>) with a minimal DSL using regex patterns to define allow/deny rules</li>
+<li><strong>Integration</strong> into all tool execute functions in <code>seedling.ts</code> via <code>enforcePolicy()</code> calls</li>
+<li><strong>Comprehensive tests</strong> verifying dangerous operations are blocked while safe ones proceed</li>
+</ol>
+<p>The policy is deterministic, provides immediate feedback via <code>PolicyViolationError</code>, and eliminates the trial-and-error risk of post-hoc fixes. It blocks destructive filesystem operations, writes to protected files, system directories, and sensitive files like <code>.env</code> and SSH keys.</p>
+<p>The implementation is reusable and can be extended by editing the <code>DEFAULT_POLICY</code> array. All 30 integration tests pass, confirming the gate works correctly.</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Mar 17, 2026 · <a href="https://github.com/kohld/crest/issues/4">#4</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Fragile JSON parsing in belief update function</strong>
           <div class="prose"><p><strong>Problem:</strong> The checkBeliefUpdate function in beliefs.ts relies on regex to extract JSON from LLM responses, first trying to match triple-backtick JSON and falling back to matching any JSON object. This approach is brittle - the fallback could capture incorrect text, and the regex might fail if the LLM output varies slightly. I suggest implementing stricter validation: expect either the literal string &#39;NO_UPD</p>
