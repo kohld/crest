@@ -4,6 +4,7 @@ import { readdir } from "fs/promises";
 import { join } from "path";
 import { prependEntry } from "./memory";
 import { openIssue } from "./github";
+import { checkModelUpgrade } from "./model-check";
 
 import { MODEL } from "./config";
 
@@ -106,4 +107,7 @@ export async function selfAnalysis(): Promise<void> {
   await prependEntry("SELF_ANALYSIS.md", entry);
 
   console.log(`SELF_ANALYSIS.md updated for ${todayString()}.`);
+
+  console.log("Checking for model upgrades...");
+  await checkModelUpgrade();
 }
