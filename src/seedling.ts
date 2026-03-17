@@ -150,6 +150,14 @@ export async function seedling(): Promise<void> {
     maxSteps: 20,
     experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
       console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
+
+      // Unknown tool name — repair is impossible, skip the step
+      const validTools = ["read_file", "write_file", "run_command"];
+      if (!validTools.includes(toolCall.toolName)) {
+        console.warn(`Unknown tool '${toolCall.toolName}' — skipping.`);
+        return null;
+      }
+
       const { text: repairedArgs } = await generateText({
         model: openrouter(MODEL),
         system: system ?? "",
