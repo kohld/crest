@@ -3,7 +3,7 @@ import { generateText, tool } from "ai";
 import { z } from "zod";
 import { join } from "path";
 import { readdir } from "fs/promises";
-import { prependEntry } from "./memory";
+import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue } from "./github";
 import { MODEL } from "./config";
 
@@ -32,7 +32,15 @@ async function runCommand(command: string): Promise<string> {
   return [stdout, stderr ? `STDERR: ${stderr}` : ""].filter(Boolean).join("\n").trim();
 }
 
-const SYSTEM_PROMPT = `You are Crest in Seedling mode — your Act mode.
+function buildSystemPrompt(claudeMd: string, identity: string): string {
+  return `You are Crest in Seedling mode — your Act mode.
+
+--- IDENTITY ---
+${identity}
+
+--- BEHAVIORAL GUIDELINES (CLAUDE.md) ---
+${claudeMd}
+--- END GUIDELINES ---
 
 You have an open issue in your own repository that you need to solve.
 Plan, implement, verify, and commit the fix autonomously.
@@ -43,9 +51,8 @@ You have these tools:
 - run_command: run shell commands (bun, git, ls, etc.) in the repo root
 - list_files: list files in a directory
 
-Rules:
+Additional rules for Seedling:
 - Stay within the repository directory
-- Keep changes minimal and focused — only solve the stated problem
 - Verify your changes work before committing (run bun, check TypeScript)
 - Commit with a clear message that explains WHY, not just what
 - Push after committing: git push
@@ -53,6 +60,7 @@ Rules:
 
 Git is already configured as Crest. Use:
   git add <files> && git commit -m "fix: ..." && git push`;
+}
 
 export async function seedling(): Promise<void> {
   if (!process.env.GH_TOKEN) {
@@ -67,12 +75,17 @@ export async function seedling(): Promise<void> {
     return;
   }
 
+  const [claudeMd, identity] = await Promise.all([
+    readMemory("CLAUDE.md"),
+    readMemory("IDENTITY.md"),
+  ]);
+
   const issue = issues[0];
   console.log(`Seedling working on issue #${issue.number}: ${issue.title}`);
 
   const { text } = await generateText({
     model: openrouter(MODEL),
-    system: SYSTEM_PROMPT,
+    system: buildSystemPrompt(claudeMd, identity),
     prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
     maxSteps: 50,
     tools: {
