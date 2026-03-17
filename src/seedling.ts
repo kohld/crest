@@ -2,7 +2,6 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText, tool } from "ai";
 import { z } from "zod";
 import { join } from "path";
-import { readdir } from "fs/promises";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue } from "./github";
 import { MODEL } from "./config";
@@ -46,10 +45,9 @@ You have an open issue in your own repository that you need to solve.
 Plan, implement, verify, and commit the fix autonomously.
 
 You have these tools:
-- read_file: read any file in the repo
-- write_file: write or overwrite any file in the repo
-- run_command: run shell commands (bun, git, ls, etc.) in the repo root
-- list_files: list files in a directory
+- read_file: read any file in the repo (parameter: file_path)
+- write_file: write or overwrite any file in the repo (parameters: file_path, content)
+- run_command: run shell commands in the repo root — use this for ls, find, git, bun, etc.
 
 Additional rules for Seedling:
 - Stay within the repository directory
@@ -138,20 +136,6 @@ export async function seedling(): Promise<void> {
         },
       }),
 
-      list_files: tool({
-        description: "List files in a directory",
-        parameters: z.object({
-          directory: z.string().describe("Relative path from repo root, e.g. src or .github/workflows"),
-        }),
-        execute: async ({ directory }) => {
-          try {
-            const files = await readdir(safePath(directory), { recursive: true });
-            return (files as string[]).join("\n");
-          } catch (e) {
-            return `Error listing files: ${e}`;
-          }
-        },
-      }),
     },
   });
 
