@@ -3,6 +3,7 @@ import { generateText } from "ai";
 import { fetchNews } from "./sources";
 import { readLastEntries, readMemory, prependEntry } from "./memory";
 import { checkBeliefUpdate } from "./beliefs";
+import { checkBuildOpportunity } from "./build-check";
 
 import { MODEL } from "./config";
 
@@ -10,6 +11,11 @@ const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
 function todayString(): string {
   return new Date().toISOString().split("T")[0];
+}
+
+function timeString(): string {
+  const now = new Date();
+  return `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;
 }
 
 function buildSystemPrompt(identity: string, beliefs: string): string {
@@ -42,10 +48,13 @@ export async function think(): Promise<void> {
   });
 
   const reflection = text.trim();
-  const entry = `## ${todayString()}\n\n${reflection}`;
+  const entry = `## ${todayString()} · ${timeString()}\n\n${reflection}`;
   await prependEntry("THOUGHTS.md", entry);
   console.log(`THOUGHTS.md updated for ${todayString()}.`);
 
   console.log("Checking belief update...");
   await checkBeliefUpdate(reflection);
+
+  console.log("Checking build opportunity...");
+  await checkBuildOpportunity(reflection);
 }

@@ -3,7 +3,7 @@
 const REPO = process.env.GITHUB_REPOSITORY ?? "kohld/crest";
 const TOKEN = process.env.GH_TOKEN;
 
-export async function openIssue(title: string, body: string): Promise<number> {
+export async function openIssue(title: string, body: string, labels: string[] = []): Promise<number> {
   if (!TOKEN) throw new Error("GH_TOKEN is not set");
 
   const res = await fetch(`https://api.github.com/repos/${REPO}/issues`, {
@@ -13,7 +13,7 @@ export async function openIssue(title: string, body: string): Promise<number> {
       Accept: "application/vnd.github+json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ title, body }),
+    body: JSON.stringify({ title, body, labels }),
   });
 
   if (!res.ok) {
@@ -29,6 +29,7 @@ export interface Issue {
   number: number;
   title: string;
   body: string;
+  labels: string[];
 }
 
 export async function listOpenIssues(): Promise<Issue[]> {
@@ -49,8 +50,13 @@ export async function listOpenIssues(): Promise<Issue[]> {
     throw new Error(`Failed to list issues: ${res.status} ${err}`);
   }
 
-  const data = await res.json() as { number: number; title: string; body: string | null }[];
-  return data.map((i) => ({ number: i.number, title: i.title, body: i.body ?? "" }));
+  const data = await res.json() as { number: number; title: string; body: string | null; labels: { name: string }[] }[];
+  return data.map((i) => ({
+    number: i.number,
+    title: i.title,
+    body: i.body ?? "",
+    labels: i.labels.map((l) => l.name),
+  }));
 }
 
 export async function closeIssue(number: number, comment: string): Promise<void> {
