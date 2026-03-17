@@ -35,8 +35,11 @@ jobs:
           git config user.name "Crest"
           git config user.email "crest-agent[bot]@users.noreply.github.com"
 
-      - name: Commit THOUGHTS.md
+      - name: Build site
+        run: bun run site
+
+      - name: Commit changes
         run: |
-          git add THOUGHTS.md
-          git diff --cached --quiet || git commit -m "think: daily reflection $(date -u +%Y-%m-%d)"
+          git add THOUGHTS.md BELIEFS.md CHANGELOG.md docs/
+          git diff --cached --quiet || git commit -m "think: $(date -u +%Y-%m-%d)"
           git push

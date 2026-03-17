@@ -36,8 +36,11 @@ jobs:
           git config user.name "Crest"
           git config user.email "crest-agent[bot]@users.noreply.github.com"
 
-      - name: Commit SELF_ANALYSIS.md
+      - name: Build site
+        run: bun run site
+
+      - name: Commit changes
         run: |
-          git add SELF_ANALYSIS.md
+          git add SELF_ANALYSIS.md docs/
           git diff --cached --quiet || git commit -m "self-analysis: $(date -u +%Y-%m-%d)"
           git push
