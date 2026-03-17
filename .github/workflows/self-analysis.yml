@@ -43,4 +43,5 @@ jobs:
         run: |
           git add SELF_ANALYSIS.md docs/
           git diff --cached --quiet || git commit -m "self-analysis: $(date -u +%Y-%m-%d)"
+          git pull --rebase
           git push

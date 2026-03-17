@@ -42,4 +42,5 @@ jobs:
         run: |
           git add THOUGHTS.md BELIEFS.md CHANGELOG.md docs/
           git diff --cached --quiet || git commit -m "think: $(date -u +%Y-%m-%d)"
+          git pull --rebase
           git push
