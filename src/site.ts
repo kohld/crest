@@ -15,14 +15,35 @@ interface Entry {
 
 function parseEntries(raw: string): Entry[] {
   return raw
-    .split(/(?=^## \\d{4}-\\d{2}-\\d{2})/m)
+    .split(/(?=^## \d{4}-\d{2}-\d{2})/m)
     .filter(Boolean)
     .map((block) => {
-      const match = block.match(/^## (\\d{4}-\\d{2}-\\d{2})(?:\\s·\\s(\\d{2}:\\d{2}))?\\n+([\\s\\S]*)/);
+      const match = block.match(/^## (\d{4}-\d{2}-\d{2})(?:\s·\s(\d{2}:\d{2}))?\n+([\s\S]*)/);
       if (!match) return null;
       return { date: match[1], time: match[2], content: match[3].trim() };
     })
     .filter(Boolean) as Entry[];
+}
+
+interface NotebookEntry {
+  date: string;
+  issueRef: string;
+  title: string;
+  content: string;
+}
+
+function parseNotebook(raw: string): NotebookEntry[] {
+  return raw
+    .split(/(?=^## \d{4}-\d{2}-\d{2})/m)
+    .filter(Boolean)
+    .map((block) => {
+      // ## 2026-03-17 — [#5](url): Title  OR  ## 2026-03-17 — #5: Title
+      const match = block.match(/^## (\d{4}-\d{2}-\d{2})\s+[—-]\s+(\[#\d+\]\([^)]+\)|#\d+):\s+(.+?)\n([\s\S]*)/);
+      if (!match) return null;
+      const content = match[4].replace(/^---\s*$/m, "").trim();
+      return { date: match[1], issueRef: match[2], title: match[3].trim(), content };
+    })
+    .filter(Boolean) as NotebookEntry[];
 }
 
 function formatDate(iso: string): string {
@@ -143,7 +164,7 @@ const CSS = `
 `;
 
 function layout(title: string, currentPage: string, content: string): string {
-  const pages = ["today", "journal", "beliefs", "identity", "memory"];
+  const pages = ["today", "journal", "notebook", "beliefs", "identity", "memory"];
   const nav = pages
     .map((page) => {
       const href = page === "today" ? "index.html" : `${page}.html`;
@@ -273,6 +294,38 @@ async function buildMemory(): Promise<void> {
   await Bun.write(join(DOCS, "memory.html"), layout("Memory", "memory", content));
 }
 
+async function buildNotebook(): Promise<void> {
+  const raw = await readMemory("NOTEBOOK.md");
+  const entries = parseNotebook(raw);
+
+  if (entries.length === 0) {
+    await Bun.write(
+      join(DOCS, "notebook.html"),
+      layout("Notebook", "notebook", "<p>No builds recorded yet.</p>")
+    );
+    return;
+  }
+
+  const items = entries
+    .map((e) => {
+      const issueHtml = e.issueRef.startsWith("[")
+        ? e.issueRef.replace(/\[#(\d+)\]\(([^)]+)\)/, '<a href="$2">#$1</a>')
+        : e.issueRef;
+      return `
+        <div class="entry">
+          <span class="meta">${formatDate(e.date)} · ${issueHtml}</span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">${e.title}</strong>
+          <div class="prose">${marked.parse(e.content) as string}</div>
+        </div>`;
+    })
+    .join("");
+
+  await Bun.write(
+    join(DOCS, "notebook.html"),
+    layout("Notebook", "notebook", items)
+  );
+}
+
 export async function buildSite(): Promise<void> {
   await mkdir(DOCS, { recursive: true });
 
@@ -282,6 +335,7 @@ export async function buildSite(): Promise<void> {
   await Promise.all([
     buildToday(entries),
     buildJournal(entries),
+    buildNotebook(),
     buildBeliefs(),
     buildIdentity(),
     buildMemory(),
