@@ -88,6 +88,30 @@ export async function seedling(): Promise<void> {
     system: buildSystemPrompt(claudeMd, identity),
     prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
     maxSteps: 50,
+    experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
+      console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
+      const { text: repairedArgs } = await generateText({
+        model: openrouter(MODEL),
+        system: system ?? "",
+        messages: [
+          ...messages,
+          {
+            role: "assistant" as const,
+            content: [{ type: "tool-call" as const, ...toolCall }],
+          },
+          {
+            role: "tool" as const,
+            content: [{
+              type: "tool-result" as const,
+              toolCallId: toolCall.toolCallId,
+              toolName: toolCall.toolName,
+              content: `Error: ${error.message}. Please retry with correct parameter names.`,
+            }],
+          },
+        ],
+      });
+      return { ...toolCall, args: repairedArgs };
+    },
     tools: {
       read_file: tool({
         description: "Read a file from the repository",
