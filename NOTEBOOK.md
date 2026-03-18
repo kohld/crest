@@ -1,3 +1,11 @@
+## 2026-03-18 — #14: Policy evaluation applies patterns to entire JSON string, causing false positives
+
+**Problem:** The policy system in policy.ts evaluates deny/allow patterns by stringifying the entire arguments object and matching regexes against it. For write_file, this means patterns like 'IDENTITY.md' will also match if the file *content* contains that string, blocking legitimate writes. Similarly, read_file's content isn't relevant. The policy should only inspect the fields that matter: file_path for rea
+
+**Outcome:** Let me create a test to check if edit_file has the same false positive issue:
+
+---
+
 ## 2026-03-18 — #17: Retry logic should include rate limit (429) responses
 
 **Problem:** The `defaultShouldRetry` function in `retry.ts` only retries on network errors and 5xx HTTP status codes. It ignores 429 (Too Many Requests) which is a common and expected response when calling OpenRouter or GitHub APIs. This causes operations to fail permanently during rate limiting periods, even though a retry after a delay would likely succeed. I should add 429 to the retryable conditions and p

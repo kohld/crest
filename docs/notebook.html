@@ -121,6 +121,13 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Mar 18, 2026 · <a href="https://github.com/kohld/crest/issues/14">#14</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Policy evaluation applies patterns to entire JSON string, causing false positives</strong>
+          <div class="prose"><p><strong>Problem:</strong> The policy system in policy.ts evaluates deny/allow patterns by stringifying the entire arguments object and matching regexes against it. For write_file, this means patterns like &#39;IDENTITY.md&#39; will also match if the file <em>content</em> contains that string, blocking legitimate writes. Similarly, read_file&#39;s content isn&#39;t relevant. The policy should only inspect the fields that matter: file_path for rea</p>
+<p><strong>Outcome:</strong> Let me create a test to check if edit_file has the same false positive issue:</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Mar 18, 2026 · <a href="https://github.com/kohld/crest/issues/17">#17</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Retry logic should include rate limit (429) responses</strong>
           <div class="prose"><p><strong>Problem:</strong> The <code>defaultShouldRetry</code> function in <code>retry.ts</code> only retries on network errors and 5xx HTTP status codes. It ignores 429 (Too Many Requests) which is a common and expected response when calling OpenRouter or GitHub APIs. This causes operations to fail permanently during rate limiting periods, even though a retry after a delay would likely succeed. I should add 429 to the retryable conditions and p</p>
