@@ -78,23 +78,13 @@ export async function closeIssue(number: number, comment: string): Promise<void>
         body: JSON.stringify({ body: comment }),
       });
 
-      // Then close issue
-      const res = await fetch(`https://api.github.com/repos/${REPO}/issues/${number}`, {
+      // Then close issue using githubRequest instead of raw fetch
+      await githubRequest(`/issues/${number}`, {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${TOKEN}`,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ state: "closed" }),
       });
 
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`Failed to close issue #${number}: ${res.status} ${err}`);
-      }
-
-      console.log(`Issue #${number} closed via API (HTTP ${res.status}).`);
+      console.log(`Issue #${number} closed via API.`);
     },
     "github_close_issue",
     RETRY_CONFIGS.github
