@@ -103,6 +103,7 @@ Plan, implement, verify, and commit the fix autonomously.
 You have these tools:
 - read_file: read a file in the repository (parameter: file_path)
 - write_file: write or overwrite a file in the repository (parameters: file_path, content)
+- edit_file: replace an exact string in a file (parameters: file_path, old_string, new_string) — prefer this over write_file for small changes
 - run_command: run shell commands in the repository root — use this for ls, find, git, bun, etc.
 
 PROTECTED FILES — never write to these via write_file or run_command (no >, tee, cp, mv):
@@ -160,7 +161,7 @@ export async function seedling(): Promise<void> {
       console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
 
       // Unknown tool name — repair is impossible, skip the step
-      const validTools = ["read_file", "write_file", "run_command"];
+      const validTools = ["read_file", "write_file", "edit_file", "run_command"];
       if (!validTools.includes(toolCall.toolName)) {
         console.warn(`Unknown tool '${toolCall.toolName}' — skipping.`);
         return null;
@@ -226,6 +227,35 @@ export async function seedling(): Promise<void> {
             return `Written: ${file_path}`;
           } catch (e) {
             return `Error writing file: ${e}`;
+          }
+        },
+      }),
+
+      edit_file: tool({
+        description: "Edit a file by replacing an exact string with a new string. Preferred over write_file for small changes.",
+        parameters: z.object({
+          file_path: z.string().describe("Relative path from repo root"),
+          old_string: z.string().describe("Exact string to find and replace"),
+          new_string: z.string().describe("Replacement string"),
+        }),
+        execute: async ({ file_path, old_string, new_string }) => {
+          enforcePolicy("write_file", { file_path, content: new_string });
+
+          const filename = file_path.split("/").pop() ?? file_path;
+          if (PROTECTED_FILES.has(filename)) {
+            return `Refused: ${file_path} is a protected history file.`;
+          }
+          try {
+            const current = await Bun.file(safePath(file_path)).text();
+            if (!current.includes(old_string)) {
+              return `Error: old_string not found in ${file_path}. Read the file first to get the exact content.`;
+            }
+            const updated = current.replace(old_string, new_string);
+            await Bun.write(safePath(file_path), updated);
+            actionsLog.push(`edited: ${file_path}`);
+            return `Edited: ${file_path}`;
+          } catch (e) {
+            return `Error editing file: ${e}`;
           }
         },
       }),
