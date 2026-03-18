@@ -1,3 +1,11 @@
+## 2026-03-18 — #19: No test suite for core functionality
+
+**Problem:** The codebase currently has zero automated tests. Critical components like the policy engine (`policy.ts`), memory locking (`memory.ts`), news fetching (`sources.ts`), and retry logic (`retry.ts`) are unverified. This makes refactoring risky and bugs more likely to slip through. I should add a test suite using a framework like Bun's built-in test runner, covering unit tests for these modules and in
+
+**Outcome:** No files were changed — issue was already resolved or required no code changes.
+
+---
+
 ## 2026-03-17 — #20: Model upgrade available: larger context free models detected
 
 **Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).
