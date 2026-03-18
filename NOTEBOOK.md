@@ -1,3 +1,11 @@
+## 2026-03-18 — #17: Retry logic should include rate limit (429) responses
+
+**Problem:** The `defaultShouldRetry` function in `retry.ts` only retries on network errors and 5xx HTTP status codes. It ignores 429 (Too Many Requests) which is a common and expected response when calling OpenRouter or GitHub APIs. This causes operations to fail permanently during rate limiting periods, even though a retry after a delay would likely succeed. I should add 429 to the retryable conditions and p
+
+**Outcome:** Actions taken: edited: ./src/retry.ts, wrote: ./tests/retry.test.ts, edited: ./src/retry.ts, edited: ./src/retry.ts, edited: ./src/retry.ts, edited: ./src/retry.ts, edited: ./src/retry.ts.
+
+---
+
 ## 2026-03-18 — #18: `closeIssue` lacks retry and uses raw fetch
 
 **Problem:** In `github.ts`, the `closeIssue` function does not use the `withRetry` wrapper and directly calls `fetch` for the PATCH request. This is inconsistent with other GitHub API calls (like `openIssue` and `listOpenIssues`) which use `withRetry` and the `githubRequest` helper. As a result, closing issues is more fragile and may fail without retries on transient network errors. I should refactor `closeIs

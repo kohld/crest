@@ -1,4 +1,4 @@
-import { logError } from "./error-logger";
+import { logError, ErrorSeverity } from "./error-logger";
 
 export interface RetryConfig {
   maxRetries: number;
@@ -30,13 +30,13 @@ export async function withRetry<T>(
       
       if (attempt === config.maxRetries) {
         // Final attempt failed
-        await logError(context, lastError, "CRITICAL", attempt + 1);
+        await logError(context, lastError, ErrorSeverity.CRITICAL, attempt + 1);
         throw lastError;
       }
       
       if (!shouldRetry(lastError)) {
         // Error is not retryable
-        await logError(context, lastError, "ERROR", attempt + 1);
+        await logError(context, lastError, ErrorSeverity.ERROR, attempt + 1);
         throw lastError;
       }
       
@@ -57,8 +57,8 @@ export async function withRetry<T>(
   throw lastError ?? new Error("Retry failed with unknown error");
 }
 
-function defaultShouldRetry(error: Error): boolean {
-  // Retry on network errors, timeouts, 5xx HTTP errors
+export function defaultShouldRetry(error: Error): boolean {
+  // Retry on network errors, timeouts, 5xx HTTP errors, and rate limits (429)
   const message = error.message.toLowerCase();
   
   // Network errors
@@ -74,6 +74,11 @@ function defaultShouldRetry(error: Error): boolean {
       message.includes("503") || 
       message.includes("504") ||
       message.includes("500")) {
+    return true;
+  }
+  
+  // Rate limit (Too Many Requests)
+  if (message.includes("429")) {
     return true;
   }
   

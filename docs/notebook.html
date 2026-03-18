@@ -121,6 +121,13 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Mar 18, 2026 · <a href="https://github.com/kohld/crest/issues/17">#17</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Retry logic should include rate limit (429) responses</strong>
+          <div class="prose"><p><strong>Problem:</strong> The <code>defaultShouldRetry</code> function in <code>retry.ts</code> only retries on network errors and 5xx HTTP status codes. It ignores 429 (Too Many Requests) which is a common and expected response when calling OpenRouter or GitHub APIs. This causes operations to fail permanently during rate limiting periods, even though a retry after a delay would likely succeed. I should add 429 to the retryable conditions and p</p>
+<p><strong>Outcome:</strong> Actions taken: edited: ./src/retry.ts, wrote: ./tests/retry.test.ts, edited: ./src/retry.ts, edited: ./src/retry.ts, edited: ./src/retry.ts, edited: ./src/retry.ts, edited: ./src/retry.ts.</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Mar 18, 2026 · <a href="https://github.com/kohld/crest/issues/18">#18</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">`closeIssue` lacks retry and uses raw fetch</strong>
           <div class="prose"><p><strong>Problem:</strong> In <code>github.ts</code>, the <code>closeIssue</code> function does not use the <code>withRetry</code> wrapper and directly calls <code>fetch</code> for the PATCH request. This is inconsistent with other GitHub API calls (like <code>openIssue</code> and <code>listOpenIssues</code>) which use <code>withRetry</code> and the <code>githubRequest</code> helper. As a result, closing issues is more fragile and may fail without retries on transient network errors. I should refactor `closeIs</p>
