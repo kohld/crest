@@ -1,9 +1,9 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { generateText, tool } from "ai";
+import { generateText, tool, NoSuchToolError, APICallError } from "ai";
 import { z } from "zod";
 import { resolve } from "path";
 import { prependEntry, readMemory } from "./memory";
-import { listOpenIssues, closeIssue } from "./github";
+import { listOpenIssues, closeIssue, openIssue } from "./github";
 import { MODEL } from "./config";
 import { enforcePolicy } from "./policy";
 
@@ -128,6 +128,60 @@ TESTING RULES — follow these exactly when writing tests:
 - Regex literals in TypeScript use single backslashes (\\d, \\s) — do not double-escape when writing files back`;
 }
 
+async function handleSeedlingError(e: any, issueNumber: number): Promise<void> {
+  console.error("Seedling run failed:", e?.message ?? e);
+
+  // Unknown tool — model called a tool we don't provide
+  if (NoSuchToolError.isInstance(e)) {
+    const toolName = e.toolName as string;
+    console.warn(`Opening self-fix issue for unknown tool: ${toolName}`);
+    try {
+      await openIssue(
+        `Seedling: model called unknown tool '${toolName}'`,
+        `## What happened\n\nDuring Seedling run on issue #${issueNumber}, the model tried to call \`${toolName}\` which is not in the available tools list.\n\n## Available tools\n\n\`read_file\`, \`write_file\`, \`edit_file\`, \`run_command\`\n\n## Fix\n\nEither add \`${toolName}\` as a real tool in \`src/seedling.ts\`, or add it to the system prompt as a known alias for an existing tool.`,
+        ["seedling"]
+      );
+      console.log(`Opened self-fix issue for missing tool '${toolName}'.`);
+    } catch (issueErr) {
+      console.warn("Could not open self-fix issue:", issueErr);
+    }
+    return;
+  }
+
+  // Context too long — model's context window exceeded
+  if (APICallError.isInstance(e) && e.statusCode === 400 && e.message.includes("context")) {
+    console.warn("Opening self-fix issue for context overflow.");
+    try {
+      await openIssue(
+        "Seedling: context window exceeded during run",
+        `## What happened\n\nSeedling run on issue #${issueNumber} failed because the message history grew too large for the model's context window.\n\n## Fix\n\nReduce \`maxSteps\` in \`src/seedling.ts\`, or implement context trimming (keep only the last N tool result messages).`,
+        ["seedling"]
+      );
+    } catch (issueErr) {
+      console.warn("Could not open self-fix issue:", issueErr);
+    }
+    return;
+  }
+
+  // Rate limit — model unavailable
+  if (APICallError.isInstance(e) && e.statusCode === 429) {
+    console.warn("Rate limited — no issue opened, will retry next run.");
+    return;
+  }
+
+  // Unknown error — open a generic issue
+  try {
+    await openIssue(
+      `Seedling: unexpected crash on issue #${issueNumber}`,
+      `## What happened\n\nSeedling failed with an unexpected error while working on issue #${issueNumber}.\n\n## Error\n\n\`\`\`\n${e?.message ?? String(e)}\n\`\`\`\n\n## Fix\n\nInvestigate the error above and fix the root cause in \`src/seedling.ts\` or the relevant module.`,
+      ["seedling"]
+    );
+    console.log("Opened generic self-fix issue for unexpected crash.");
+  } catch (issueErr) {
+    console.warn("Could not open self-fix issue:", issueErr);
+  }
+}
+
 export async function seedling(): Promise<void> {
   if (!process.env.GH_TOKEN) {
     console.warn("GH_TOKEN not set — skipping Seedling.");
@@ -152,7 +206,9 @@ export async function seedling(): Promise<void> {
 
   const actionsLog: string[] = [];
 
-  const { text } = await generateText({
+  let text = "";
+  try {
+  const result = await generateText({
     model: openrouter(MODEL),
     system: buildSystemPrompt(claudeMd, identity),
     prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
@@ -281,6 +337,11 @@ export async function seedling(): Promise<void> {
 
     },
   });
+  text = result.text;
+  } catch (e: any) {
+    await handleSeedlingError(e, issue.number);
+    return;
+  }
 
   // Write NOTEBOOK.md entry
   const summary = text.replace("SEEDLING_DONE", "").trim();
