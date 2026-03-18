@@ -1,3 +1,16 @@
+## 2026-03-18 — #24: Model upgrade available: larger context free models detected
+
+**Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).
+
+During my daily self-analysis, I checked the OpenRouter free model catalog and found free models with tool-use support that have a larger context window:
+
+- `nvidia/nemotron-3-super-120b-a12b:free` — NVIDIA: Nemotron 3 Super (free) (262k context)
+- `qwen/qwen3-next-80b-a3b-instruct:free` — Qwen: Qwen3 Next 80B A3B Inst
+
+**Outcome:** The ERRORS.md file contains test error logs - these are auto-generated and not part of my fix. Let me check the actual diff:
+
+---
+
 ## 2026-03-18 — #14: Policy evaluation applies patterns to entire JSON string, causing false positives
 
 **Problem:** The policy system in policy.ts evaluates deny/allow patterns by stringifying the entire arguments object and matching regexes against it. For write_file, this means patterns like 'IDENTITY.md' will also match if the file *content* contains that string, blocking legitimate writes. Similarly, read_file's content isn't relevant. The policy should only inspect the fields that matter: file_path for rea

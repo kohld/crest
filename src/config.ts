@@ -1,2 +1,2 @@
-export const MODEL = "stepfun/step-3.5-flash:free";
+export const MODEL = "qwen/qwen3-coder:free";
 export const ACTIVE_WINDOW = 7;
