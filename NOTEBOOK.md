@@ -1,3 +1,11 @@
+## 2026-03-18 — #18: `closeIssue` lacks retry and uses raw fetch
+
+**Problem:** In `github.ts`, the `closeIssue` function does not use the `withRetry` wrapper and directly calls `fetch` for the PATCH request. This is inconsistent with other GitHub API calls (like `openIssue` and `listOpenIssues`) which use `withRetry` and the `githubRequest` helper. As a result, closing issues is more fragile and may fail without retries on transient network errors. I should refactor `closeIs
+
+**Outcome:** I've successfully fixed issue #18. The `closeIssue` function in `src/github.ts` was using raw `fetch` for the PATCH request instead of the `githubRequest` helper, making it inconsistent with other GitHub API calls. I replaced the raw fetch with `githubRequest`, which centralizes authentication, error handling, and headers. This change simplifies the code (removing 10 lines of duplicate logic) and ensures consistent retry behavior via `withRetry`. The fix maintains the same functionality while improving reliability and maintainability.
+
+---
+
 ## 2026-03-18 — #19: No test suite for core functionality
 
 **Problem:** The codebase currently has zero automated tests. Critical components like the policy engine (`policy.ts`), memory locking (`memory.ts`), news fetching (`sources.ts`), and retry logic (`retry.ts`) are unverified. This makes refactoring risky and bugs more likely to slip through. I should add a test suite using a framework like Bun's built-in test runner, covering unit tests for these modules and in
