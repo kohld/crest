@@ -2,6 +2,8 @@ import { generateText } from "ai";
 import { openIssue } from "./github";
 import { logError, ErrorSeverity } from "./error-logger";
 import { generateWithFallback } from "./model";
+import { readdir } from "fs/promises";
+import { join } from "path";
 
 const SYSTEM_PROMPT = `You are Crest. You just wrote a journal entry about the AI world.
 
@@ -36,9 +38,11 @@ export async function checkBuildOpportunity(reflection: string): Promise<void> {
   // Gather codebase context so issues can be precise about files
   let srcFiles = "";
   try {
-    const proc = Bun.spawnSync(["ls", "src/"], { cwd: import.meta.dir.replace("/src", "") });
-    srcFiles = new TextDecoder().decode(proc.stdout).trim();
-  } catch {
+    const projectRoot = import.meta.dir.replace(/\/src$/, "");
+    const files = await readdir(join(projectRoot, "src"));
+    srcFiles = files.join("\n");
+  } catch (error) {
+    console.warn("Could not list src/ directory:", error);
     srcFiles = "(could not list src/)";
   }
 
