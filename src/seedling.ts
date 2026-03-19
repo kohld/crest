@@ -348,10 +348,11 @@ export async function seedling(): Promise<void> {
         contextManager.prune();
       }
 
-      const currentMessages = contextManager.getMessages();
+      // Filter out system message — must be passed as `system` param, not in messages array
+      const currentMessages = contextManager.getMessages().filter((m) => m.role !== "system");
 
       const result = await generateWithFallback({
-        system: "", // System already included in messages
+        system: systemPrompt,
         messages: currentMessages as Message[],
         maxSteps: 1, // We manage the loop manually
         experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
