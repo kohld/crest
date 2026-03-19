@@ -106,7 +106,9 @@ You have these tools:
 - read_file: read a file in the repository (parameter: file_path)
 - write_file: write or overwrite a file in the repository (parameters: file_path, content)
 - edit_file: replace an exact string in a file (parameters: file_path, old_string, new_string) — prefer this over write_file for small changes
-- run_command: run shell commands in the repository root — use this for ls, find, git, bun, etc.
+- run_command: run shell commands in the repository root — use for git, bun, tsc, etc.
+- search_files: search for a pattern across files (parameters: pattern, glob?) — use instead of grep in run_command
+- list_directory: list files in a directory (parameter: path) — use instead of ls in run_command
 
 PROTECTED FILES — never write to these via write_file or run_command (no >, tee, cp, mv):
   NOTEBOOK.md, THOUGHTS.md, BELIEFS.md, CHANGELOG.md, SELF_ANALYSIS.md, MEMORY_LOSS.md, IDENTITY.md
@@ -331,6 +333,49 @@ export async function seedling(): Promise<void> {
             return result;
           } catch (e) {
             return `Error: ${e}`;
+          }
+        },
+      }),
+
+      search_files: tool({
+        description: "Search for a text pattern across repository files. Safer than grep via run_command. Returns matching lines with file paths and line numbers.",
+        parameters: z.object({
+          pattern: z.string().describe("Text or regex pattern to search for"),
+          glob: z.string().optional().describe("File glob to limit search, e.g. 'src/*.ts' or '*.md'. Defaults to all files."),
+        }),
+        execute: async ({ pattern, glob }) => {
+          try {
+            const args = ["--line-number", "--with-filename", pattern];
+            if (glob) args.push("--glob", glob);
+            args.push(".");
+
+            const proc = Bun.spawnSync(["grep", "-r", "-n", pattern, ...(glob ? ["--include", glob] : []), "."], {
+              cwd: ROOT,
+              stderr: "ignore",
+            });
+            const output = new TextDecoder().decode(proc.stdout).trim();
+            if (!output) return `No matches found for pattern: ${pattern}`;
+            // Limit output to avoid context overflow
+            const lines = output.split("\n");
+            const truncated = lines.length > 50 ? lines.slice(0, 50).join("\n") + `\n... (${lines.length - 50} more lines)` : output;
+            return truncated;
+          } catch (e) {
+            return `Error searching: ${e}`;
+          }
+        },
+      }),
+
+      list_directory: tool({
+        description: "List files in a directory. Use this instead of run_command with ls.",
+        parameters: z.object({
+          path: z.string().describe("Directory path relative to repo root, e.g. 'src' or 'tests'").default("."),
+        }),
+        execute: async ({ path }) => {
+          try {
+            const proc = Bun.spawnSync(["ls", "-la", path], { cwd: ROOT, stderr: "ignore" });
+            return new TextDecoder().decode(proc.stdout).trim() || "Empty directory";
+          } catch (e) {
+            return `Error listing directory: ${e}`;
           }
         },
       }),

@@ -1,30 +1,31 @@
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText } from "ai";
 import { openIssue } from "./github";
-import { MODEL } from "./model";
 import { logError, ErrorSeverity } from "./error-logger";
-import { withRetry, RETRY_CONFIGS } from "./retry";
-
-const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
+import { generateWithFallback } from "./model";
 
 const SYSTEM_PROMPT = `You are Crest. You just wrote a journal entry about the AI world.
 
-Now ask yourself: is there something concrete you should build?
+Now ask yourself: what concrete things should I build next?
 
-Not a vague improvement. A specific, scoped tool, feature, or fix that:
-- Is missing from your own stack
-- Would make you more capable, resilient, or honest
-- Can be built in a single focused session
+You have access to your current source files (listed below). Use this to write precise, actionable issues — name the exact file to create or modify, describe the function signature or data structure, explain why it matters.
 
-If yes, respond with a JSON object wrapped in \`\`\`json fences:
-{
-  "title": "<short, specific issue title>",
-  "body": "<problem statement: what is missing, why it matters, what a solution might look like>"
-}
+Rules:
+- Only propose things that are genuinely missing from your stack
+- Each issue must be completable in a single focused Seedling session (≤ 20 steps)
+- Maximum 3 issues. Fewer is better — only open what you are confident about
+- No vague improvements. Every issue must have a concrete "what to build" section
 
-If no clear build opportunity exists, respond with exactly: NO_BUILD
+If you identify build opportunities, respond with a JSON array wrapped in \`\`\`json fences:
+[
+  {
+    "title": "<short, specific issue title>",
+    "body": "## Problem\\n<what is missing and why it matters>\\n\\n## What to build\\n<specific file(s), function signatures, approach>\\n\\n## Done when\\n<concrete verification criterion>"
+  }
+]
 
-Be honest. Do not invent work. Only open an issue if you genuinely identified something missing.`;
+If no clear build opportunities exist, respond with exactly: NO_BUILD
+
+Be honest. Do not invent work.`;
 
 export async function checkBuildOpportunity(reflection: string): Promise<void> {
   if (!process.env.GH_TOKEN) {
@@ -32,48 +33,51 @@ export async function checkBuildOpportunity(reflection: string): Promise<void> {
     return;
   }
 
+  // Gather codebase context so issues can be precise about files
+  let srcFiles = "";
   try {
-    const { text } = await withRetry(
-      () => generateText({
-        model: openrouter(MODEL),
-        system: SYSTEM_PROMPT,
-        prompt: `My reflection today:\n\n${reflection}`,
-      }),
-      "build_opportunity_llm_call",
-      RETRY_CONFIGS.openrouter
-    );
+    const proc = Bun.spawnSync(["ls", "src/"], { cwd: import.meta.dir.replace("/src", "") });
+    srcFiles = new TextDecoder().decode(proc.stdout).trim();
+  } catch {
+    srcFiles = "(could not list src/)";
+  }
+
+  const prompt = `My reflection today:\n\n${reflection}\n\n---\nCurrent source files in src/:\n${srcFiles}`;
+
+  try {
+    const { text } = await generateWithFallback({
+      system: SYSTEM_PROMPT,
+      prompt,
+    });
 
     if (text.trim().startsWith("NO_BUILD")) {
       console.log("No build opportunity identified.");
       return;
     }
 
-    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) ?? text.match(/\{[\s\S]*\}/);
+    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) ?? text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
-      const errorMsg = "Could not parse build opportunity response — skipping.";
-      console.warn(errorMsg);
-      await logError("build_opportunity_parsing", errorMsg, ErrorSeverity.WARNING);
+      console.warn("Could not parse build opportunity response — skipping.");
+      await logError("build_opportunity_parsing", "No JSON found in response", ErrorSeverity.WARNING);
       return;
     }
 
-    let result: { title: string; body: string };
+    let results: { title: string; body: string }[];
     try {
-      result = JSON.parse(jsonMatch[1] ?? jsonMatch[0]);
-    } catch (error) {
-      const errorMsg = "Invalid JSON in build opportunity — skipping.";
-      console.warn(errorMsg);
-      await logError("build_opportunity_json_parse", error instanceof Error ? error : new Error("JSON parse error"), ErrorSeverity.WARNING);
+      const parsed = JSON.parse(jsonMatch[1] ?? jsonMatch[0]);
+      results = Array.isArray(parsed) ? parsed : [parsed];
+    } catch (e) {
+      console.warn("Invalid JSON in build opportunity — skipping.");
+      await logError("build_opportunity_json_parse", e instanceof Error ? e : new Error("JSON parse error"), ErrorSeverity.WARNING);
       return;
     }
 
-    const number = await withRetry(
-      () => openIssue(result.title, result.body, ["seedling"]),
-      "build_opportunity_open_issue",
-      RETRY_CONFIGS.github
-    );
-    console.log(`Build opportunity → issue #${number}: ${result.title}`);
+    for (const result of results.slice(0, 3)) {
+      if (!result.title || !result.body) continue;
+      const number = await openIssue(result.title, result.body, ["seedling"]);
+      console.log(`Build opportunity → issue #${number}: ${result.title}`);
+    }
   } catch (error) {
     console.error("Build opportunity check failed:", error);
-    // Error already logged by withRetry
   }
 }
