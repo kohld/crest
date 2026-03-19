@@ -389,22 +389,17 @@ export async function seedling(): Promise<void> {
         tools: toolsMap,
       });
 
-      // Add assistant message to context before tool calls
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: result.text ? [{ type: "text", text: result.text }] : [],
-      };
-      contextManager.addMessage(assistantMessage);
-
-      // Handle tool calls if any
+      // Build a single assistant message combining text + all tool-calls
+      // (two consecutive assistant messages break models like Step 3.5 Flash)
       if (result.toolCalls && result.toolCalls.length > 0) {
+        const assistantContent: any[] = [];
+        if (result.text) assistantContent.push({ type: "text", text: result.text });
+        for (const tc of result.toolCalls) {
+          assistantContent.push({ type: "tool-call", toolName: tc.toolName, args: tc.args, toolCallId: tc.toolCallId });
+        }
+        contextManager.addMessage({ role: "assistant", content: assistantContent });
+
         for (const toolCall of result.toolCalls) {
-          // Add tool call to context
-          const toolCallMessage: Message = {
-            role: "assistant",
-            content: [{ type: "tool-call", toolName: toolCall.toolName, args: toolCall.args, toolCallId: toolCall.toolCallId }],
-          };
-          contextManager.addMessage(toolCallMessage);
 
           // Execute tool directly from toolsMap
           const toolFn = (toolsMap as any)[toolCall.toolName];
@@ -418,7 +413,8 @@ export async function seedling(): Promise<void> {
           contextManager.addMessage(toolResultMessage);
         }
       } else {
-        // No tool calls, we're done
+        // No tool calls — done
+        if (result.text) contextManager.addMessage({ role: "assistant", content: result.text });
         text = result.text;
         break;
       }
