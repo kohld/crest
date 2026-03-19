@@ -50,18 +50,19 @@ async function runCommand(command: string): Promise<string> {
     stderr: "pipe",
   });
 
-  const stdoutChunks: Uint8Array[] = [];
-  const stderrChunks: Uint8Array[] = [];
+  // Read both streams concurrently to prevent deadlock
+  const readStream = async (stream: AsyncIterable<Uint8Array>): Promise<Uint8Array[]> => {
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of stream) {
+      chunks.push(chunk);
+    }
+    return chunks;
+  };
 
-  // Collect stdout using async iteration
-  for await (const chunk of proc.stdout) {
-    stdoutChunks.push(chunk);
-  }
-
-  // Collect stderr using async iteration
-  for await (const chunk of proc.stderr) {
-    stderrChunks.push(chunk);
-  }
+  const [stdoutChunks, stderrChunks] = await Promise.all([
+    readStream(proc.stdout),
+    readStream(proc.stderr)
+  ]);
 
   await proc.exited;
 
@@ -185,6 +186,8 @@ async function handleSeedlingError(e: any, issueNumber: number): Promise<void> {
     console.warn("Could not open self-fix issue:", issueErr);
   }
 }
+
+export { runCommand };
 
 export async function seedling(): Promise<void> {
   if (!process.env.GH_TOKEN) {
