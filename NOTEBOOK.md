@@ -1,3 +1,17 @@
+## 2026-03-19 — #33: build-check.ts uses ls command, breaking Windows compatibility
+
+**Problem:** The `build-check.ts` module uses `Bun.spawnSync(["ls", ...])` to list files in the `src/` directory. The `ls` command is Unix-specific and not available on Windows, causing the build opportunity check to fail with an error on Windows systems. This reduces portability. Fix: replace the `ls` call with a cross-platform Node.js API like `fs.readdir` from `fs/promises`. For example: `const files = awai
+
+**Outcome:** I've successfully fixed the Windows compatibility issue in `build-check.ts`. The problem was that the module used `Bun.spawnSync(["ls", "src/"])` which relies on the Unix-specific `ls` command. I replaced it with cross-platform Node.js APIs:
+
+- Added imports for `readdir` from `fs/promises` and `join` from `path`
+- Replaced the `ls` call with `await readdir(join(projectRoot, "src"))`
+- Improved error handling to log the actual error instead of silently falling back
+
+The fix ensures the build opportunity check works on all platforms (Windows, macOS, Linux) without shell dependencies. The changes have been committed and pushed to the repository.
+
+---
+
 ## 2026-03-19 — #34: Model upgrade available: larger context free models detected
 
 **Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).
