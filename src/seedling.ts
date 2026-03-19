@@ -1,12 +1,11 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { generateText, tool, NoSuchToolError, APICallError, Message } from "ai";
+import { generateText, tool, NoSuchToolError, APICallError } from "ai";
 import { z } from "zod";
 import { resolve } from "path";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue, openIssue } from "./github";
 import { generateWithFallback, MODEL_CHAIN } from "./model";
 import { enforcePolicy } from "./policy";
-import { ContextManager, estimateTokens } from "./context-manager";
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 const ROOT = import.meta.dir.replace("/src", "");
@@ -211,21 +210,7 @@ export async function seedling(): Promise<void> {
 
   const actionsLog: string[] = [];
 
-  // Initialize context manager with conservative limits
-  const contextManager = new ContextManager({
-    maxTokens: 12000, // Leave room for system prompt and responses
-    pruneThreshold: 0.75,
-    minRecentMessages: 4,
-    enableSummarization: false,
-  });
-
-  // Set system message
   const systemPrompt = buildSystemPrompt(claudeMd, identity);
-  contextManager.setSystemMessage(systemPrompt);
-
-  // Add initial user message with the issue
-  const initialPrompt = `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`;
-  contextManager.addMessage({ role: "user", content: initialPrompt });
 
   // Define tools once — referenced by both generateWithFallback and manual execute calls
   const toolsMap = {
@@ -335,94 +320,36 @@ export async function seedling(): Promise<void> {
   };
 
   let text = "";
-  let stepCount = 0;
-  const maxSteps = 20;
 
   try {
-    while (stepCount < maxSteps) {
-      stepCount++;
-      console.log(`Step ${stepCount}/${maxSteps}, tokens: ${contextManager.getTokenCount()}`);
-
-      if (contextManager.needsPruning()) {
-        console.log("Context threshold reached, pruning...");
-        contextManager.prune();
-      }
-
-      // Filter out system message — must be passed as `system` param, not in messages array
-      const currentMessages = contextManager.getMessages().filter((m) => m.role !== "system");
-
-      const result = await generateWithFallback({
-        system: systemPrompt,
-        messages: currentMessages as Message[],
-        maxSteps: 1, // We manage the loop manually
-        experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
-          console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
-
-          // Unknown tool name — repair is impossible, skip the step
-          const validTools = ["read_file", "write_file", "edit_file", "run_command"];
-          if (!validTools.includes(toolCall.toolName)) {
-            console.warn(`Unknown tool '${toolCall.toolName}' — skipping.`);
-            return null;
-          }
-
-          const { text: repairedArgs } = await generateWithFallback({
-            system: system ?? "",
-            messages: [
-              ...messages,
-              {
-                role: "assistant" as const,
-                content: [{ type: "tool-call" as const, ...toolCall }],
-              },
-              {
-                role: "tool" as const,
-                content: [{
-                  type: "tool-result" as const,
-                  toolCallId: toolCall.toolCallId,
-                  toolName: toolCall.toolName,
-                  content: [{ type: "text" as const, text: `Error: ${error.message}. Please retry with correct parameter names.` }],
-                }],
-              },
-            ],
-          });
-          return { ...toolCall, args: repairedArgs };
-        },
-        tools: toolsMap,
-      });
-
-      // Build a single assistant message combining text + all tool-calls
-      // (two consecutive assistant messages break models like Step 3.5 Flash)
-      if (result.toolCalls && result.toolCalls.length > 0) {
-        const assistantContent: any[] = [];
-        if (result.text) assistantContent.push({ type: "text", text: result.text });
-        for (const tc of result.toolCalls) {
-          assistantContent.push({ type: "tool-call", toolName: tc.toolName, args: tc.args, toolCallId: tc.toolCallId });
+    const result = await generateWithFallback({
+      system: systemPrompt,
+      prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
+      maxSteps: 20,
+      experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
+        console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
+        const validTools = Object.keys(toolsMap);
+        if (!validTools.includes(toolCall.toolName)) {
+          console.warn(`Unknown tool '${toolCall.toolName}' — skipping.`);
+          return null;
         }
-        contextManager.addMessage({ role: "assistant", content: assistantContent });
-
-        for (const toolCall of result.toolCalls) {
-
-          // Execute tool directly from toolsMap
-          const toolFn = (toolsMap as any)[toolCall.toolName];
-          const toolResult = toolFn
-            ? await toolFn.execute(toolCall.args)
-            : `Error: unknown tool '${toolCall.toolName}'`;
-          const toolResultMessage: Message = {
-            role: "tool",
-            content: [{ type: "tool-result", toolCallId: toolCall.toolCallId, toolName: toolCall.toolName, content: [{ type: "text", text: String(toolResult) }] }],
-          };
-          contextManager.addMessage(toolResultMessage);
-        }
-      } else {
-        // No tool calls — done
-        if (result.text) contextManager.addMessage({ role: "assistant", content: result.text });
-        text = result.text;
-        break;
-      }
-    }
-
-    if (stepCount >= maxSteps && !text) {
-      text = "Reached maximum steps without completion.";
-    }
+        const { text: repairedArgs } = await generateWithFallback({
+          system: system ?? "",
+          messages: [
+            ...messages,
+            { role: "assistant" as const, content: [{ type: "tool-call" as const, ...toolCall }] },
+            { role: "tool" as const, content: [{ type: "tool-result" as const, toolCallId: toolCall.toolCallId, toolName: toolCall.toolName, content: `Error: ${error.message}. Retry with correct parameters.` }] },
+          ],
+        });
+        return { ...toolCall, args: repairedArgs };
+      },
+      onStepFinish: ({ stepType, toolCalls, usage }) => {
+        const step = (result as any)._stepCount ?? "?";
+        console.log(`Step done (${stepType}), tools: ${toolCalls?.length ?? 0}, tokens: ${usage?.totalTokens ?? "?"}`);
+      },
+      tools: toolsMap,
+    });
+    text = result.text;
   } catch (e: any) {
     await handleSeedlingError(e, issue.number);
     return;
