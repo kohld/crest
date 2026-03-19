@@ -2,6 +2,7 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText, tool, NoSuchToolError, APICallError } from "ai";
 import { z } from "zod";
 import { resolve } from "path";
+import { realpath } from "fs/promises";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue, openIssue } from "./github";
 import { generateWithFallback, MODEL_CHAIN } from "./model";
@@ -34,6 +35,30 @@ export function safePath(p: string, root = ROOT): string {
     }
   }
   return resolved;
+}
+
+/**
+ * Resolves a path to its canonical target, resolving all symbolic links.
+ * This prevents symlink attacks where a benign-looking path points to a protected file.
+ *
+ * @param p - The path to resolve (relative to repo root)
+ * @param root - The repository root directory
+ * @returns The canonical absolute path after resolving all symlinks
+ */
+export async function safeRealPath(p: string, root = ROOT): Promise<string> {
+  // First resolve .. and . segments
+  const resolved = safePath(p, root);
+  // Then resolve any symbolic links to get the actual target
+  const real = await realpath(resolved);
+  // Normalize root to ensure no trailing slash (except for filesystem root)
+  const rootNormalized = root === "/" ? "/" : root.replace(/\/+$/, "");
+  // Verify the real path is still within the repository
+  if (rootNormalized !== "/") {
+    if (real !== rootNormalized && !real.startsWith(rootNormalized + "/")) {
+      throw new Error(`Path outside repo after symlink resolution: ${p} -> ${real}`);
+    }
+  }
+  return real;
 }
 
 async function runCommand(command: string): Promise<string> {
@@ -223,9 +248,10 @@ export async function seedling(): Promise<void> {
         file_path: z.string().describe("Relative path from repo root, e.g. src/think.ts"),
       }),
       execute: async ({ file_path }) => {
-        enforcePolicy("read_file", { file_path });
+        const realPath = await safeRealPath(file_path);
+        enforcePolicy("read_file", { file_path, real_path: realPath });
         try {
-          return await Bun.file(safePath(file_path)).text();
+          return await Bun.file(realPath).text();
         } catch (e) {
           return `Error reading file: ${e}`;
         }
@@ -238,11 +264,13 @@ export async function seedling(): Promise<void> {
         content: z.string(),
       }),
       execute: async ({ file_path, content }) => {
-        enforcePolicy("write_file", { file_path, content });
-        const filename = file_path.split("/").pop() ?? file_path;
+        const realPath = await safeRealPath(file_path);
+        enforcePolicy("write_file", { file_path, content, real_path: realPath });
+        // Check protected files using the real path's basename to prevent symlink bypass
+        const filename = realPath.split("/").pop() ?? realPath;
         if (PROTECTED_FILES.has(filename)) return `Refused: ${file_path} is a protected history file.`;
         try {
-          await Bun.write(safePath(file_path), content);
+          await Bun.write(realPath, content);
           actionsLog.push(`wrote: ${file_path}`);
           return `Written: ${file_path}`;
         } catch (e) {
@@ -258,13 +286,15 @@ export async function seedling(): Promise<void> {
         new_string: z.string().describe("Replacement string"),
       }),
       execute: async ({ file_path, old_string, new_string }) => {
-        enforcePolicy("write_file", { file_path, content: new_string });
-        const filename = file_path.split("/").pop() ?? file_path;
+        const realPath = await safeRealPath(file_path);
+        enforcePolicy("write_file", { file_path, content: new_string, real_path: realPath });
+        // Check protected files using the real path's basename to prevent symlink bypass
+        const filename = realPath.split("/").pop() ?? realPath;
         if (PROTECTED_FILES.has(filename)) return `Refused: ${file_path} is a protected history file.`;
         try {
-          const current = await Bun.file(safePath(file_path)).text();
+          const current = await Bun.file(realPath).text();
           if (!current.includes(old_string)) return `Error: old_string not found in ${file_path}. Read the file first.`;
-          await Bun.write(safePath(file_path), current.replace(old_string, new_string));
+          await Bun.write(realPath, current.replace(old_string, new_string));
           actionsLog.push(`edited: ${file_path}`);
           return `Edited: ${file_path}`;
         } catch (e) {

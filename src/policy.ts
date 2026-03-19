@@ -107,11 +107,19 @@ export function evaluatePolicy(action: string, args: Record<string, any>): Polic
   // Collect all rules that apply to this action
   const relevantRules = DEFAULT_POLICY.filter(r => r.action === "*" || r.action === action);
 
-  // For file operations, only check the path — not the file content.
-  // Checking content would cause false positives (e.g. a test file mentioning /etc/passwd).
-  const targetString = (action === "write_file" || action === "read_file")
-    ? JSON.stringify({ file_path: args.file_path ?? "" }).toLowerCase()
-    : JSON.stringify(args).toLowerCase();
+  // For file operations, check both the provided path and the real (canonical) path if available.
+  // This prevents symlink attacks where a benign path points to a protected file.
+  let targetString: string;
+  if (action === "write_file" || action === "read_file") {
+    const filePath = args.file_path ?? "";
+    const realPath = args.real_path;
+    // Build a string that includes both paths for pattern matching
+    const parts: string[] = [filePath];
+    if (realPath) parts.push(realPath);
+    targetString = JSON.stringify({ file_path: parts }).toLowerCase();
+  } else {
+    targetString = JSON.stringify(args).toLowerCase();
+  }
 
   // Check deny patterns first
   for (const rule of relevantRules) {

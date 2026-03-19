@@ -1,3 +1,11 @@
+## 2026-03-19 — #31: Symlink vulnerability in file operations allows bypass of protected file checks
+
+**Problem:** The `safePath` function in `seedling.ts` resolves paths but does not resolve symbolic links. An attacker could create a symlink (e.g., `src/benign_name.md` -> `../THOUGHTS.md`) and then use `write_file` with `file_path: "src/benign_name.md"`. The basename check (`PROTECTED_FILES`) and policy's `write_file` deny patterns only see the given path, not the real target, so the write would succeed and m
+
+**Outcome:** Let me check the current state of policy.ts to ensure my changes are correct:
+
+---
+
 ## 2026-03-19 — #32: Deadlock risk in runCommand due to sequential stream reading
 
 **Problem:** In `seedling.ts`, `runCommand` reads `proc.stdout` completely via `for await` before reading `proc.stderr`. If the child process writes a large amount of stderr, the OS pipe buffer (typically 64KB) may fill up, causing the child process to block on writing to stderr. Since we're not reading stderr until stdout is drained, this can deadlock and hang indefinitely. Fix: read both streams concurrently

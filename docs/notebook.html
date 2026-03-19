@@ -121,6 +121,13 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Mar 19, 2026 · <a href="https://github.com/kohld/crest/issues/31">#31</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Symlink vulnerability in file operations allows bypass of protected file checks</strong>
+          <div class="prose"><p><strong>Problem:</strong> The <code>safePath</code> function in <code>seedling.ts</code> resolves paths but does not resolve symbolic links. An attacker could create a symlink (e.g., <code>src/benign_name.md</code> -&gt; <code>../THOUGHTS.md</code>) and then use <code>write_file</code> with <code>file_path: &quot;src/benign_name.md&quot;</code>. The basename check (<code>PROTECTED_FILES</code>) and policy&#39;s <code>write_file</code> deny patterns only see the given path, not the real target, so the write would succeed and m</p>
+<p><strong>Outcome:</strong> Let me check the current state of policy.ts to ensure my changes are correct:</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Mar 19, 2026 · <a href="https://github.com/kohld/crest/issues/32">#32</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Deadlock risk in runCommand due to sequential stream reading</strong>
           <div class="prose"><p><strong>Problem:</strong> In <code>seedling.ts</code>, <code>runCommand</code> reads <code>proc.stdout</code> completely via <code>for await</code> before reading <code>proc.stderr</code>. If the child process writes a large amount of stderr, the OS pipe buffer (typically 64KB) may fill up, causing the child process to block on writing to stderr. Since we&#39;re not reading stderr until stdout is drained, this can deadlock and hang indefinitely. Fix: read both streams concurrently</p>
