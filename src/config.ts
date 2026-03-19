@@ -1,3 +1,2 @@
-// Primary model — managed via src/model.ts fallback chain, do not change directly
-export const MODEL = "stepfun/step-3.5-flash:free";
+// Active memory window — number of recent entries Crest keeps in full detail
 export const ACTIVE_WINDOW = 7;

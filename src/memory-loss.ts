@@ -1,7 +1,8 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText } from "ai";
 import { readMemory, prependEntry } from "./memory";
-import { MODEL, ACTIVE_WINDOW } from "./config";
+import { ACTIVE_WINDOW } from "./config";
+import { MODEL } from "./model";
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 

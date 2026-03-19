@@ -10,11 +10,12 @@ import { enforcePolicy } from "./policy";
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 const ROOT = import.meta.dir.replace("/src", "");
 
-// History files and core config must never be overwritten by Seedling
+// History files must never be overwritten — only prepended via TypeScript code
+// model.ts is also protected: model selection requires human approval
 const PROTECTED_FILES = new Set([
   "NOTEBOOK.md", "THOUGHTS.md", "BELIEFS.md", "CHANGELOG.md",
   "SELF_ANALYSIS.md", "MEMORY_LOSS.md", "IDENTITY.md",
-  "config.ts",  // model/config changes require human approval
+  "model.ts",
 ]);
 
 function todayString(): string {

@@ -1,5 +1,5 @@
 import { openIssue } from "./github";
-import { MODEL } from "./config";
+import { MODEL } from "./model";
 import { logError, ErrorSeverity } from "./error-logger";
 import { withRetry, RETRY_CONFIGS } from "./retry";
 

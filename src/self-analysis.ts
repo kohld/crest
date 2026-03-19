@@ -6,7 +6,7 @@ import { prependEntry } from "./memory";
 import { openIssue } from "./github";
 import { checkModelUpgrade } from "./model-check";
 
-import { MODEL } from "./config";
+import { MODEL } from "./model";
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
