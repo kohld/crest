@@ -1,3 +1,11 @@
+## 2026-03-19 — #22: Inconsistent error handling strategy
+
+**Problem:** Error handling varies across modules: some functions re-throw after logging (e.g., beliefs.ts), while others swallow errors (e.g., build-check.ts). This inconsistency can lead to silent failures or unhandled rejections, making debugging difficult. I need to define a clear policy: for critical operations (like writing memory), failures should propagate to abort the current mode; for non-critical (l
+
+**Outcome:** Reached maximum steps without completion.
+
+---
+
 ## 2026-03-19 — #23: Proactive context window management needed in seedling
 
 **Problem:** Seedling mode currently uses a fixed maxSteps (20) and does not trim the conversation history. On complex issues, the context can exceed the model's window, causing failures and self-fix issues. Instead of reacting to overflow errors, I should implement proactive context management: after each step, prune old messages or summarize intermediate results to keep the history within limits. This will r
