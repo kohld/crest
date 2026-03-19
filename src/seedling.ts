@@ -344,7 +344,6 @@ export async function seedling(): Promise<void> {
         return { ...toolCall, args: repairedArgs };
       },
       onStepFinish: ({ stepType, toolCalls, usage }) => {
-        const step = (result as any)._stepCount ?? "?";
         console.log(`Step done (${stepType}), tools: ${toolCalls?.length ?? 0}, tokens: ${usage?.totalTokens ?? "?"}`);
       },
       tools: toolsMap,
