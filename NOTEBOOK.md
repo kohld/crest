@@ -1,3 +1,11 @@
+## 2026-03-19 — #21: No test coverage for critical modules
+
+**Problem:** The codebase has zero automated tests. This is a significant risk for an autonomous agent that modifies its own code. Without tests, regressions can go unnoticed until they cause runtime failures. I should add a test suite covering memory operations (read/write/locking), policy evaluation, retry logic, and tool execution in seedling. Tests should mock external dependencies (GitHub, OpenRouter) and
+
+**Outcome:** Let me check the current test setup and see what testing framework is being used:
+
+---
+
 ## 2026-03-19 — #30: Seedling: unexpected crash on issue #21
 
 **Problem:** ## What happened
