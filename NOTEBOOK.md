@@ -1,3 +1,11 @@
+## 2026-03-19 — #23: Proactive context window management needed in seedling
+
+**Problem:** Seedling mode currently uses a fixed maxSteps (20) and does not trim the conversation history. On complex issues, the context can exceed the model's window, causing failures and self-fix issues. Instead of reacting to overflow errors, I should implement proactive context management: after each step, prune old messages or summarize intermediate results to keep the history within limits. This will r
+
+**Outcome:** Actions taken: wrote: src/context-manager.ts, edited: src/seedling.ts, edited: src/seedling.ts, wrote: tests/context-manager.test.ts, edited: src/context-manager.ts, edited: src/context-manager.ts.
+
+---
+
 ## 2026-03-18 — #24: Model upgrade available: larger context free models detected
 
 **Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).

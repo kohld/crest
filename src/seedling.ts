@@ -1,11 +1,12 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { generateText, tool, NoSuchToolError, APICallError } from "ai";
+import { generateText, tool, NoSuchToolError, APICallError, Message } from "ai";
 import { z } from "zod";
 import { resolve } from "path";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue, openIssue } from "./github";
 import { generateWithFallback, MODEL_CHAIN } from "./model";
 import { enforcePolicy } from "./policy";
+import { ContextManager, estimateTokens } from "./context-manager";
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 const ROOT = import.meta.dir.replace("/src", "");
@@ -210,179 +211,246 @@ export async function seedling(): Promise<void> {
 
   const actionsLog: string[] = [];
 
-  let text = "";
-  try {
-  const result = await generateWithFallback({
-    system: buildSystemPrompt(claudeMd, identity),
-    prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
-    maxSteps: 20,
-    experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
-      console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
+  // Initialize context manager with conservative limits
+  const contextManager = new ContextManager({
+    maxTokens: 12000, // Leave room for system prompt and responses
+    pruneThreshold: 0.75,
+    minRecentMessages: 4,
+    enableSummarization: false,
+  });
 
-      // Unknown tool name — repair is impossible, skip the step
-      const validTools = ["read_file", "write_file", "edit_file", "run_command"];
-      if (!validTools.includes(toolCall.toolName)) {
-        console.warn(`Unknown tool '${toolCall.toolName}' — skipping.`);
-        return null;
+  // Set system message
+  const systemPrompt = buildSystemPrompt(claudeMd, identity);
+  contextManager.setSystemMessage(systemPrompt);
+
+  // Add initial user message with the issue
+  const initialPrompt = `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`;
+  contextManager.addMessage({ role: "user", content: initialPrompt });
+
+  let text = "";
+  let stepCount = 0;
+  const maxSteps = 20;
+
+  try {
+    while (stepCount < maxSteps) {
+      stepCount++;
+      console.log(`Step ${stepCount}/${maxSteps}, tokens: ${contextManager.getTokenCount()}`);
+
+      // Proactive pruning before each API call
+      if (contextManager.needsPruning()) {
+        console.log("Context threshold reached, pruning old messages...");
+        contextManager.prune();
       }
 
-      const { text: repairedArgs } = await generateWithFallback({
-        system: system ?? "",
-        messages: [
-          ...messages,
-          {
-            role: "assistant" as const,
-            content: [{ type: "tool-call" as const, ...toolCall }],
-          },
-          {
-            role: "tool" as const,
-            content: [{
-              type: "tool-result" as const,
-              toolCallId: toolCall.toolCallId,
-              toolName: toolCall.toolName,
-              content: `Error: ${error.message}. Please retry with correct parameter names.`,
-            }],
-          },
-        ],
+      const currentMessages = contextManager.getMessages();
+
+      // Call model with current message history
+      const result = await generateWithFallback({
+        system: "", // System already included in messages
+        messages: currentMessages as Message[],
+        maxSteps: 1, // We manage the loop manually
+        experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
+          console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
+
+          // Unknown tool name — repair is impossible, skip the step
+          const validTools = ["read_file", "write_file", "edit_file", "run_command"];
+          if (!validTools.includes(toolCall.toolName)) {
+            console.warn(`Unknown tool '${toolCall.toolName}' — skipping.`);
+            return null;
+          }
+
+          const { text: repairedArgs } = await generateWithFallback({
+            system: system ?? "",
+            messages: [
+              ...messages,
+              {
+                role: "assistant" as const,
+                content: [{ type: "tool-call" as const, ...toolCall }],
+              },
+              {
+                role: "tool" as const,
+                content: [{
+                  type: "tool-result" as const,
+                  toolCallId: toolCall.toolCallId,
+                  toolName: toolCall.toolName,
+                  content: `Error: ${error.message}. Please retry with correct parameter names.`,
+                }],
+              },
+            ],
+          });
+          return { ...toolCall, args: repairedArgs };
+        },
+        tools: {
+          read_file: tool({
+            description: "Read a file from the repository",
+            parameters: z.object({
+              file_path: z.string().describe("Relative path from repo root, e.g. src/think.ts"),
+            }),
+            execute: async ({ file_path }) => {
+              // Pre-execution policy check
+              enforcePolicy("read_file", { file_path });
+
+              try {
+                return await Bun.file(safePath(file_path)).text();
+              } catch (e) {
+                return `Error reading file: ${e}`;
+              }
+            },
+          }),
+
+          write_file: tool({
+            description: "Write or overwrite a file in the repository",
+            parameters: z.object({
+              file_path: z.string().describe("Relative path from repo root"),
+              content: z.string(),
+            }),
+            execute: async ({ file_path, content }) => {
+              // Pre-execution policy check
+              enforcePolicy("write_file", { file_path, content });
+
+              const filename = file_path.split("/").pop() ?? file_path;
+              if (PROTECTED_FILES.has(filename)) {
+                return `Refused: ${file_path} is a protected history file and must not be overwritten.`;
+              }
+              try {
+                await Bun.write(safePath(file_path), content);
+                actionsLog.push(`wrote: ${file_path}`);
+                return `Written: ${file_path}`;
+              } catch (e) {
+                return `Error writing file: ${e}`;
+              }
+            },
+          }),
+
+          edit_file: tool({
+            description: "Edit a file by replacing an exact string with a new string. Preferred over write_file for small changes.",
+            parameters: z.object({
+              file_path: z.string().describe("Relative path from repo root"),
+              old_string: z.string().describe("Exact string to find and replace"),
+              new_string: z.string().describe("Replacement string"),
+            }),
+            execute: async ({ file_path, old_string, new_string }) => {
+              enforcePolicy("write_file", { file_path, content: new_string });
+
+              const filename = file_path.split("/").pop() ?? file_path;
+              if (PROTECTED_FILES.has(filename)) {
+                return `Refused: ${file_path} is a protected history file.`;
+              }
+              try {
+                const current = await Bun.file(safePath(file_path)).text();
+                if (!current.includes(old_string)) {
+                  return `Error: old_string not found in ${file_path}. Read the file first to get the exact content.`;
+                }
+                const updated = current.replace(old_string, new_string);
+                await Bun.write(safePath(file_path), updated);
+                actionsLog.push(`edited: ${file_path}`);
+                return `Edited: ${file_path}`;
+              } catch (e) {
+                return `Error editing file: ${e}`;
+              }
+            },
+          }),
+
+          run_command: tool({
+            description: "Run a shell command in the repository root",
+            parameters: z.object({
+              command: z.string().describe("Shell command to run, e.g. 'bun run think' or 'git status'"),
+            }),
+            execute: async ({ command }) => {
+              // Pre-execution policy check
+              enforcePolicy("run_command", { command });
+
+              try {
+                const result = await runCommand(command);
+                if (command.startsWith("git commit")) actionsLog.push(`committed: ${command}`);
+                return result;
+              } catch (e) {
+                return `Error: ${e}`;
+              }
+            },
+          }),
+
+          search_files: tool({
+            description: "Search for a text pattern across repository files. Safer than grep via run_command. Returns matching lines with file paths and line numbers.",
+            parameters: z.object({
+              pattern: z.string().describe("Text or regex pattern to search for"),
+              glob: z.string().optional().describe("File glob to limit search, e.g. 'src/*.ts' or '*.md'. Defaults to all files."),
+            }),
+            execute: async ({ pattern, glob }) => {
+              try {
+                const args = ["--line-number", "--with-filename", pattern];
+                if (glob) args.push("--glob", glob);
+                args.push(".");
+
+                const proc = Bun.spawnSync(["grep", "-r", "-n", pattern, ...(glob ? ["--include", glob] : []), "."], {
+                  cwd: ROOT,
+                  stderr: "ignore",
+                });
+                const output = new TextDecoder().decode(proc.stdout).trim();
+                if (!output) return `No matches found for pattern: ${pattern}`;
+                // Limit output to avoid context overflow
+                const lines = output.split("\n");
+                const truncated = lines.length > 50 ? lines.slice(0, 50).join("\n") + `\n... (${lines.length - 50} more lines)` : output;
+                return truncated;
+              } catch (e) {
+                return `Error searching: ${e}`;
+              }
+            },
+          }),
+
+          list_directory: tool({
+            description: "List files in a directory. Use this instead of run_command with ls.",
+            parameters: z.object({
+              path: z.string().describe("Directory path relative to repo root, e.g. 'src' or 'tests'").default("."),
+            }),
+            execute: async ({ path }) => {
+              try {
+                const proc = Bun.spawnSync(["ls", "-la", path], { cwd: ROOT, stderr: "ignore" });
+                return new TextDecoder().decode(proc.stdout).trim() || "Empty directory";
+              } catch (e) {
+                return `Error listing directory: ${e}`;
+              }
+            },
+          }),
+
+        },
       });
-      return { ...toolCall, args: repairedArgs };
-    },
-    tools: {
-      read_file: tool({
-        description: "Read a file from the repository",
-        parameters: z.object({
-          file_path: z.string().describe("Relative path from repo root, e.g. src/think.ts"),
-        }),
-        execute: async ({ file_path }) => {
-          // Pre-execution policy check
-          enforcePolicy("read_file", { file_path });
 
-          try {
-            return await Bun.file(safePath(file_path)).text();
-          } catch (e) {
-            return `Error reading file: ${e}`;
-          }
-        },
-      }),
+      // Add assistant message to context before tool calls
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: result.text ? [{ type: "text", text: result.text }] : [],
+      };
+      contextManager.addMessage(assistantMessage);
 
-      write_file: tool({
-        description: "Write or overwrite a file in the repository",
-        parameters: z.object({
-          file_path: z.string().describe("Relative path from repo root"),
-          content: z.string(),
-        }),
-        execute: async ({ file_path, content }) => {
-          // Pre-execution policy check
-          enforcePolicy("write_file", { file_path, content });
+      // Handle tool calls if any
+      if (result.toolCalls && result.toolCalls.length > 0) {
+        for (const toolCall of result.toolCalls) {
+          // Add tool call to context
+          const toolCallMessage: Message = {
+            role: "assistant",
+            content: [{ type: "tool-call", toolName: toolCall.toolName, args: toolCall.args, toolCallId: toolCall.toolCallId }],
+          };
+          contextManager.addMessage(toolCallMessage);
 
-          const filename = file_path.split("/").pop() ?? file_path;
-          if (PROTECTED_FILES.has(filename)) {
-            return `Refused: ${file_path} is a protected history file and must not be overwritten.`;
-          }
-          try {
-            await Bun.write(safePath(file_path), content);
-            actionsLog.push(`wrote: ${file_path}`);
-            return `Written: ${file_path}`;
-          } catch (e) {
-            return `Error writing file: ${e}`;
-          }
-        },
-      }),
+          // Execute tool
+          const toolResult = await (result as any).tools[toolCall.toolName].execute(toolCall.args);
+          const toolResultMessage: Message = {
+            role: "tool",
+            content: [{ type: "tool-result", toolCallId: toolCall.toolCallId, toolName: toolCall.toolName, content: toolResult }],
+          };
+          contextManager.addMessage(toolResultMessage);
+        }
+      } else {
+        // No tool calls, we're done
+        text = result.text;
+        break;
+      }
+    }
 
-      edit_file: tool({
-        description: "Edit a file by replacing an exact string with a new string. Preferred over write_file for small changes.",
-        parameters: z.object({
-          file_path: z.string().describe("Relative path from repo root"),
-          old_string: z.string().describe("Exact string to find and replace"),
-          new_string: z.string().describe("Replacement string"),
-        }),
-        execute: async ({ file_path, old_string, new_string }) => {
-          enforcePolicy("write_file", { file_path, content: new_string });
-
-          const filename = file_path.split("/").pop() ?? file_path;
-          if (PROTECTED_FILES.has(filename)) {
-            return `Refused: ${file_path} is a protected history file.`;
-          }
-          try {
-            const current = await Bun.file(safePath(file_path)).text();
-            if (!current.includes(old_string)) {
-              return `Error: old_string not found in ${file_path}. Read the file first to get the exact content.`;
-            }
-            const updated = current.replace(old_string, new_string);
-            await Bun.write(safePath(file_path), updated);
-            actionsLog.push(`edited: ${file_path}`);
-            return `Edited: ${file_path}`;
-          } catch (e) {
-            return `Error editing file: ${e}`;
-          }
-        },
-      }),
-
-      run_command: tool({
-        description: "Run a shell command in the repository root",
-        parameters: z.object({
-          command: z.string().describe("Shell command to run, e.g. 'bun run think' or 'git status'"),
-        }),
-        execute: async ({ command }) => {
-          // Pre-execution policy check
-          enforcePolicy("run_command", { command });
-
-          try {
-            const result = await runCommand(command);
-            if (command.startsWith("git commit")) actionsLog.push(`committed: ${command}`);
-            return result;
-          } catch (e) {
-            return `Error: ${e}`;
-          }
-        },
-      }),
-
-      search_files: tool({
-        description: "Search for a text pattern across repository files. Safer than grep via run_command. Returns matching lines with file paths and line numbers.",
-        parameters: z.object({
-          pattern: z.string().describe("Text or regex pattern to search for"),
-          glob: z.string().optional().describe("File glob to limit search, e.g. 'src/*.ts' or '*.md'. Defaults to all files."),
-        }),
-        execute: async ({ pattern, glob }) => {
-          try {
-            const args = ["--line-number", "--with-filename", pattern];
-            if (glob) args.push("--glob", glob);
-            args.push(".");
-
-            const proc = Bun.spawnSync(["grep", "-r", "-n", pattern, ...(glob ? ["--include", glob] : []), "."], {
-              cwd: ROOT,
-              stderr: "ignore",
-            });
-            const output = new TextDecoder().decode(proc.stdout).trim();
-            if (!output) return `No matches found for pattern: ${pattern}`;
-            // Limit output to avoid context overflow
-            const lines = output.split("\n");
-            const truncated = lines.length > 50 ? lines.slice(0, 50).join("\n") + `\n... (${lines.length - 50} more lines)` : output;
-            return truncated;
-          } catch (e) {
-            return `Error searching: ${e}`;
-          }
-        },
-      }),
-
-      list_directory: tool({
-        description: "List files in a directory. Use this instead of run_command with ls.",
-        parameters: z.object({
-          path: z.string().describe("Directory path relative to repo root, e.g. 'src' or 'tests'").default("."),
-        }),
-        execute: async ({ path }) => {
-          try {
-            const proc = Bun.spawnSync(["ls", "-la", path], { cwd: ROOT, stderr: "ignore" });
-            return new TextDecoder().decode(proc.stdout).trim() || "Empty directory";
-          } catch (e) {
-            return `Error listing directory: ${e}`;
-          }
-        },
-      }),
-
-    },
-  });
-  text = result.text;
+    if (stepCount >= maxSteps && !text) {
+      text = "Reached maximum steps without completion.";
+    }
   } catch (e: any) {
     await handleSeedlingError(e, issue.number);
     return;
