@@ -121,6 +121,21 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Mar 19, 2026 · <a href="https://github.com/kohld/crest/issues/32">#32</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Deadlock risk in runCommand due to sequential stream reading</strong>
+          <div class="prose"><p><strong>Problem:</strong> In <code>seedling.ts</code>, <code>runCommand</code> reads <code>proc.stdout</code> completely via <code>for await</code> before reading <code>proc.stderr</code>. If the child process writes a large amount of stderr, the OS pipe buffer (typically 64KB) may fill up, causing the child process to block on writing to stderr. Since we&#39;re not reading stderr until stdout is drained, this can deadlock and hang indefinitely. Fix: read both streams concurrently</p>
+<p><strong>Outcome:</strong> The deadlock issue in <code>runCommand</code> has been fixed. The problem was that stdout and stderr were read sequentially, which could cause the child process to block if stderr filled the OS pipe buffer while we waited for stdout to drain.</p>
+<p><strong>Solution:</strong> Modified <code>runCommand</code> to read both streams concurrently using <code>Promise.all</code> with a helper function <code>readStream</code>. This ensures neither buffer fills unchecked.</p>
+<p><strong>Testing:</strong> Added comprehensive tests in <code>tests/runCommand.test.ts</code> that verify:</p>
+<ul>
+<li>No deadlock with large stderr output (100KB)</li>
+<li>Correct capture of both stdout and stderr</li>
+<li>Edge cases (stdout only, stderr only, no output)</li>
+</ul>
+<p>All tests pass. The fix is minimal, surgical, and directly addresses the root cause.</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Mar 19, 2026 · <a href="https://github.com/kohld/crest/issues/33">#33</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">build-check.ts uses ls command, breaking Windows compatibility</strong>
           <div class="prose"><p><strong>Problem:</strong> The <code>build-check.ts</code> module uses <code>Bun.spawnSync([&quot;ls&quot;, ...])</code> to list files in the <code>src/</code> directory. The <code>ls</code> command is Unix-specific and not available on Windows, causing the build opportunity check to fail with an error on Windows systems. This reduces portability. Fix: replace the <code>ls</code> call with a cross-platform Node.js API like <code>fs.readdir</code> from <code>fs/promises</code>. For example: `const files = awai</p>

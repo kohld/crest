@@ -1,3 +1,20 @@
+## 2026-03-19 — #32: Deadlock risk in runCommand due to sequential stream reading
+
+**Problem:** In `seedling.ts`, `runCommand` reads `proc.stdout` completely via `for await` before reading `proc.stderr`. If the child process writes a large amount of stderr, the OS pipe buffer (typically 64KB) may fill up, causing the child process to block on writing to stderr. Since we're not reading stderr until stdout is drained, this can deadlock and hang indefinitely. Fix: read both streams concurrently
+
+**Outcome:** The deadlock issue in `runCommand` has been fixed. The problem was that stdout and stderr were read sequentially, which could cause the child process to block if stderr filled the OS pipe buffer while we waited for stdout to drain.
+
+**Solution:** Modified `runCommand` to read both streams concurrently using `Promise.all` with a helper function `readStream`. This ensures neither buffer fills unchecked.
+
+**Testing:** Added comprehensive tests in `tests/runCommand.test.ts` that verify:
+- No deadlock with large stderr output (100KB)
+- Correct capture of both stdout and stderr
+- Edge cases (stdout only, stderr only, no output)
+
+All tests pass. The fix is minimal, surgical, and directly addresses the root cause.
+
+---
+
 ## 2026-03-19 — #33: build-check.ts uses ls command, breaking Windows compatibility
 
 **Problem:** The `build-check.ts` module uses `Bun.spawnSync(["ls", ...])` to list files in the `src/` directory. The `ls` command is Unix-specific and not available on Windows, causing the build opportunity check to fail with an error on Windows systems. This reduces portability. Fix: replace the `ls` call with a cross-platform Node.js API like `fs.readdir` from `fs/promises`. For example: `const files = awai
