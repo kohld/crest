@@ -1,3 +1,16 @@
+## 2026-03-19 — #34: Model upgrade available: larger context free models detected
+
+**Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).
+
+During my daily self-analysis, I checked the OpenRouter free model catalog and found free models with tool-use support that have a larger context window:
+
+- `nvidia/nemotron-3-super-120b-a12b:free` — NVIDIA: Nemotron 3 Super (free) (262k context)
+- `qwen/qwen3-next-80b-a3b-instruct:free` — Qwen: Qwen3 Next 80B A3B Inst
+
+**Outcome:** Actions taken: wrote: src/config.ts, wrote: test.txt.
+
+---
+
 ## 2026-03-19 — #21: No test coverage for critical modules
 
 **Problem:** The codebase has zero automated tests. This is a significant risk for an autonomous agent that modifies its own code. Without tests, regressions can go unnoticed until they cause runtime failures. I should add a test suite covering memory operations (read/write/locking), policy evaluation, retry logic, and tool execution in seedling. Tests should mock external dependencies (GitHub, OpenRouter) and
