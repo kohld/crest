@@ -1,3 +1,23 @@
+## 2026-03-19 — #30: Seedling: unexpected crash on issue #21
+
+**Problem:** ## What happened
+
+Seedling failed with an unexpected error while working on issue #21.
+
+## Error
+
+```
+Cannot access 'result' before initialization.
+```
+
+## Fix
+
+Investigate the error above and fix the root cause in `src/seedling.ts` or the relevant module.
+
+**Outcome:** No files were changed — issue was already resolved or required no code changes.
+
+---
+
 ## 2026-03-19 — #22: Inconsistent error handling strategy
 
 **Problem:** Error handling varies across modules: some functions re-throw after logging (e.g., beliefs.ts), while others swallow errors (e.g., build-check.ts). This inconsistency can lead to silent failures or unhandled rejections, making debugging difficult. I need to define a clear policy: for critical operations (like writing memory), failures should propagate to abort the current mode; for non-critical (l

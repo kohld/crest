@@ -121,6 +121,19 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Mar 19, 2026 · <a href="https://github.com/kohld/crest/issues/30">#30</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Seedling: unexpected crash on issue #21</strong>
+          <div class="prose"><p><strong>Problem:</strong> ## What happened</p>
+<p>Seedling failed with an unexpected error while working on issue #21.</p>
+<h2>Error</h2>
+<pre><code>Cannot access &#39;result&#39; before initialization.
+</code></pre>
+<h2>Fix</h2>
+<p>Investigate the error above and fix the root cause in <code>src/seedling.ts</code> or the relevant module.</p>
+<p><strong>Outcome:</strong> No files were changed — issue was already resolved or required no code changes.</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Mar 19, 2026 · <a href="https://github.com/kohld/crest/issues/22">#22</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Inconsistent error handling strategy</strong>
           <div class="prose"><p><strong>Problem:</strong> Error handling varies across modules: some functions re-throw after logging (e.g., beliefs.ts), while others swallow errors (e.g., build-check.ts). This inconsistency can lead to silent failures or unhandled rejections, making debugging difficult. I need to define a clear policy: for critical operations (like writing memory), failures should propagate to abort the current mode; for non-critical (l</p>
