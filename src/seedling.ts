@@ -379,7 +379,7 @@ export async function seedling(): Promise<void> {
                   type: "tool-result" as const,
                   toolCallId: toolCall.toolCallId,
                   toolName: toolCall.toolName,
-                  content: `Error: ${error.message}. Please retry with correct parameter names.`,
+                  content: [{ type: "text" as const, text: `Error: ${error.message}. Please retry with correct parameter names.` }],
                 }],
               },
             ],
@@ -413,7 +413,7 @@ export async function seedling(): Promise<void> {
             : `Error: unknown tool '${toolCall.toolName}'`;
           const toolResultMessage: Message = {
             role: "tool",
-            content: [{ type: "tool-result", toolCallId: toolCall.toolCallId, toolName: toolCall.toolName, content: toolResult }],
+            content: [{ type: "tool-result", toolCallId: toolCall.toolCallId, toolName: toolCall.toolName, content: [{ type: "text", text: String(toolResult) }] }],
           };
           contextManager.addMessage(toolResultMessage);
         }
