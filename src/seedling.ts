@@ -4,16 +4,17 @@ import { z } from "zod";
 import { resolve } from "path";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue, openIssue } from "./github";
-import { MODEL } from "./config";
+import { generateWithFallback, MODEL_CHAIN } from "./model";
 import { enforcePolicy } from "./policy";
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 const ROOT = import.meta.dir.replace("/src", "");
 
-// History files must never be overwritten — only prepended via TypeScript code
+// History files and core config must never be overwritten by Seedling
 const PROTECTED_FILES = new Set([
   "NOTEBOOK.md", "THOUGHTS.md", "BELIEFS.md", "CHANGELOG.md",
   "SELF_ANALYSIS.md", "MEMORY_LOSS.md", "IDENTITY.md",
+  "config.ts",  // model/config changes require human approval
 ]);
 
 function todayString(): string {
@@ -208,8 +209,7 @@ export async function seedling(): Promise<void> {
 
   let text = "";
   try {
-  const result = await generateText({
-    model: openrouter(MODEL),
+  const result = await generateWithFallback({
     system: buildSystemPrompt(claudeMd, identity),
     prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
     maxSteps: 20,
@@ -223,8 +223,7 @@ export async function seedling(): Promise<void> {
         return null;
       }
 
-      const { text: repairedArgs } = await generateText({
-        model: openrouter(MODEL),
+      const { text: repairedArgs } = await generateWithFallback({
         system: system ?? "",
         messages: [
           ...messages,

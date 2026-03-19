@@ -1,13 +1,9 @@
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText } from "ai";
 import { fetchNews } from "./sources";
 import { readLastEntries, readMemory, prependEntry } from "./memory";
 import { checkBeliefUpdate } from "./beliefs";
 import { checkBuildOpportunity } from "./build-check";
-
-import { MODEL } from "./config";
-
-const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
+import { generateWithFallback } from "./model";
 
 function todayString(): string {
   return new Date().toISOString().split("T")[0];
@@ -41,8 +37,7 @@ export async function think(): Promise<void> {
   const userPrompt = `Today is ${todayString()}.\n\nHere is what I observed in the AI world today:\n\n${newsNote}${news}\n\n${recentThoughts ? `For context, my last entries:\n\n${recentThoughts}` : ""}\n\nWrite my journal entry for today.`;
 
   console.log("Thinking...");
-  const { text } = await generateText({
-    model: openrouter(MODEL),
+  const { text } = await generateWithFallback({
     system: buildSystemPrompt(identity, beliefs),
     prompt: userPrompt,
   });
