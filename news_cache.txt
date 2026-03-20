@@ -1,45 +1,44 @@
 ## ArXiv cs.AI
-- Generative AI-assisted Participatory Modeling in Socio-Environmental Planning under Deep Uncertainty
-  https://arxiv.org/abs/2603.17021
-  arXiv:2603.17021v1 Announce Type: new 
-Abstract: Socio-environmental planning under deep uncertainty requires researchers to identify and conceptualize problems before exploring policies and deploying plans. In practice and model-based planning approaches, this problem conceptualization process often relies on participatory modeling to translate stakeholders' natural-language descriptions into a q
-- Transformers are Bayesian Networks
-  https://arxiv.org/abs/2603.17063
-  arXiv:2603.17063v1 Announce Type: new 
-Abstract: Transformers are the dominant architecture in AI, yet why they work remains poorly understood. This paper offers a precise answer: a transformer is a Bayesian network. We establish this in five ways.
-  First, we prove that every sigmoid transformer with any weights implements weighted loopy belief propagation on its implicit factor graph. One layer 
-- Cascade-Aware Multi-Agent Routing: Spatio-Temporal Sidecars and Geometry-Switching
-  https://arxiv.org/abs/2603.17112
-  arXiv:2603.17112v1 Announce Type: new 
-Abstract: A common architectural pattern in advanced AI reasoning systems is the symbolic graph network: specialized agents or modules connected by delegation edges, routing tasks through a dynamic execution graph. Current schedulers optimize load and fitness but are geometry-blind: they do not model how failures propagate differently in tree-like versus cycl
-- How Clued up are LLMs? Evaluating Multi-Step Deductive Reasoning in a Text-Based Game Environment
-  https://arxiv.org/abs/2603.17169
-  arXiv:2603.17169v1 Announce Type: new 
-Abstract: Deducing whodunit proves challenging for LLM agents. In this paper, we implement a text-based multi-agent version of the classic board game Clue as a rule-based testbed for evaluating multi-step deductive reasoning, with six agents drawn from GPT-4o-mini and Gemini-2.5-Flash. We further investigate whether fine-tuning on structured logic puzzles tra
-- AI Scientist via Synthetic Task Scaling
-  https://arxiv.org/abs/2603.17216
-  arXiv:2603.17216v1 Announce Type: new 
-Abstract: With the advent of AI agents, automatic scientific discovery has become a tenable goal. Many recent works scaffold agentic systems that can perform machine learning research, but don't offer a principled way to train such agents -- and current LLMs often generate plausible-looking but ineffective ideas. To make progress on training agents that can l
-- Draft-and-Prune: Improving the Reliability of Auto-formalization for Logical Reasoning
-  https://arxiv.org/abs/2603.17233
-  arXiv:2603.17233v1 Announce Type: new 
-Abstract: Auto-formalization (AF) translates natural-language reasoning problems into solver-executable programs, enabling symbolic solvers to perform sound logical deduction. In practice, however, AF pipelines are currently brittle: programs may fail to execute, or execute but encode incorrect semantics. While prior work largely mitigates syntactic failures 
-- Graph-Native Cognitive Memory for AI Agents: Formal Belief Revision Semantics for Versioned Memory Architectures
-  https://arxiv.org/abs/2603.17244
-  arXiv:2603.17244v1 Announce Type: new 
-Abstract: While individual components for AI agent memory exist in prior systems, their architectural synthesis and formal grounding remain underexplored. We present Kumiho, a graph-native cognitive memory architecture grounded in formal belief revision semantics. The structural primitives required for cognitive memory -- immutable revisions, mutable tag poin
-- Contrastive Reasoning Alignment: Reinforcement Learning from Hidden Representations
-  https://arxiv.org/abs/2603.17305
-  arXiv:2603.17305v1 Announce Type: new 
-Abstract: We propose CRAFT, a red-teaming alignment framework that leverages model reasoning capabilities and hidden representations to improve robustness against jailbreak attacks. Unlike prior defenses that operate primarily at the output level, CRAFT aligns large reasoning models to generate safety-aware reasoning traces by explicitly optimizing objectives
-- InfoDensity: Rewarding Information-Dense Traces for Efficient Reasoning
-  https://arxiv.org/abs/2603.17310
-  arXiv:2603.17310v1 Announce Type: new 
-Abstract: Large Language Models (LLMs) with extended reasoning capabilities often generate verbose and redundant reasoning traces, incurring unnecessary computational cost. While existing reinforcement learning approaches address this by optimizing final response length, they neglect the quality of intermediate reasoning steps, leaving models vulnerable to re
-- Physics-informed offline reinforcement learning eliminates catastrophic fuel waste in maritime routing
-  https://arxiv.org/abs/2603.17319
-  arXiv:2603.17319v1 Announce Type: new 
-Abstract: International shipping produces approximately 3% of global greenhouse gas emissions, yet voyage routing remains dominated by heuristic methods. We present PIER (Physics-Informed, Energy-efficient, Risk-aware routing), an offline reinforcement learning framework that learns fuel-efficient, safety-aware routing policies from physics-calibrated environ
+- DEAF: A Benchmark for Diagnostic Evaluation of Acoustic Faithfulness in Audio Language Models
+  https://arxiv.org/abs/2603.18048
+  arXiv:2603.18048v1 Announce Type: new 
+Abstract: Recent Audio Multimodal Large Language Models (Audio MLLMs) demonstrate impressive performance on speech benchmarks, yet it remains unclear whether these models genuinely process acoustic signals or rely on text-based semantic inference. To systematically study this question, we introduce DEAF (Diagnostic Evaluation of Acoustic Faithfulness), a benc
+- Continually self-improving AI
+  https://arxiv.org/abs/2603.18073
+  arXiv:2603.18073v1 Announce Type: new 
+Abstract: Modern language model-based AI systems are remarkably powerful, yet their capabilities remain fundamentally capped by their human creators in three key ways. First, although a model's weights can be updated via fine-tuning, acquiring new knowledge from small, specialized corpora after pretraining remains highly data-inefficient. Second, the training
+- Multi-Trait Subspace Steering to Reveal the Dark Side of Human-AI Interaction
+  https://arxiv.org/abs/2603.18085
+  arXiv:2603.18085v1 Announce Type: new 
+Abstract: Recent incidents have highlighted alarming cases where human-AI interactions led to negative psychological outcomes, including mental health crises and even user harm. As LLMs serve as sources of guidance, emotional support, and even informal therapy, these risks are poised to escalate. However, studying the mechanisms underlying harmful human-AI in
+- Adaptive Domain Models: Bayesian Evolution, Warm Rotation, and Principled Training for Geometric and Neuromorphic AI
+  https://arxiv.org/abs/2603.18104
+  arXiv:2603.18104v1 Announce Type: new 
+Abstract: Prevailing AI training infrastructure assumes reverse-mode automatic differentiation over IEEE-754 arithmetic. The memory overhead of training relative to inference, optimizer complexity, and structural degradation of geometric properties through training are consequences of this arithmetic substrate. This paper develops an alternative training arch
+- Don't Vibe Code, Do Skele-Code: Interactive No-Code Notebooks for Subject Matter Experts to Build Lower-Cost Agentic Workflows
+  https://arxiv.org/abs/2603.18122
+  arXiv:2603.18122v1 Announce Type: new 
+Abstract: Skele-Code is a natural-language and graph-based interface for building workflows with AI agents, designed especially for less or non-technical users. It supports incremental, interactive notebook-style development, and each step is converted to code with a required set of functions and behavior to enable incremental building of workflows. Agents ar
+- Efficient Dense Crowd Trajectory Prediction Via Dynamic Clustering
+  https://arxiv.org/abs/2603.18166
+  arXiv:2603.18166v1 Announce Type: new 
+Abstract: Crowd trajectory prediction plays a crucial role in public safety and management, where it can help prevent disasters such as stampedes. Recent works address the problem by predicting individual trajectories and considering surrounding objects based on manually annotated data. However, these approaches tend to overlook dense crowd scenarios, where t
+- TeachingCoach: A Fine-Tuned Scaffolding Chatbot for Instructional Guidance to Instructors
+  https://arxiv.org/abs/2603.18189
+  arXiv:2603.18189v1 Announce Type: new 
+Abstract: Higher education instructors often lack timely and pedagogically grounded support, as scalable instructional guidance remains limited and existing tools rely on generic chatbot advice or non-scalable teaching center human-human consultations. We present TeachingCoach, a pedagogically grounded chatbot designed to support instructor professional devel
+- Access Controlled Website Interaction for Agentic AI with Delegated Critical Tasks
+  https://arxiv.org/abs/2603.18197
+  arXiv:2603.18197v1 Announce Type: new 
+Abstract: Recent studies reveal gaps in delegating critical tasks to agentic AI that accesses websites on the user's behalf, primarily due to limited access control mechanisms on websites designed for agentic AI. In response, we propose a design of website-based interaction for AI agents with fine-grained access control for delegated critical tasks. Our appro
+- A Computationally Efficient Learning of Artificial Intelligence System Reliability Considering Error Propagation
+  https://arxiv.org/abs/2603.18201
+  arXiv:2603.18201v1 Announce Type: new 
+Abstract: Artificial Intelligence (AI) systems are increasingly prominent in emerging smart cities, yet their reliability remains a critical concern. These systems typically operate through a sequence of interconnected functional stages, where upstream errors may propagate to downstream stages, ultimately affecting overall system reliability. Quantifying such
+- Retrieval-Augmented LLM Agents: Learning to Learn from Experience
+  https://arxiv.org/abs/2603.18272
+  arXiv:2603.18272v1 Announce Type: new 
+Abstract: While large language models (LLMs) have advanced the development of general-purpose agents, achieving robust generalization to unseen tasks remains a significant challenge. Current approaches typically rely on either fine-tuning or training-free memory-augmented generation using retrieved experience; yet both have limitations: fine-tuning often fail
 
 ## Hacker News
 - Web LLM – WebGPU Powered Inference of Large Language Models
