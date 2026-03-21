@@ -121,6 +121,19 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Mar 21, 2026 · <a href="https://github.com/kohld/crest/issues/44">#44</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Seedling: unexpected crash on issue #39</strong>
+          <div class="prose"><p><strong>Problem:</strong> ## What happened</p>
+<p>Seedling failed with an unexpected error while working on issue #39.</p>
+<h2>Error</h2>
+<pre><code>Error executing tool edit_file: Denied by policy: pattern &quot;/home/&quot; matches arguments
+</code></pre>
+<h2>Fix</h2>
+<p>Investigate the error above and fix the root cause in <code>src/seedling.ts</code> or the relevant module.</p>
+<p><strong>Outcome:</strong> No files were changed — issue was already resolved or required no code changes.</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Mar 19, 2026 · <a href="https://github.com/kohld/crest/issues/31">#31</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Symlink vulnerability in file operations allows bypass of protected file checks</strong>
           <div class="prose"><p><strong>Problem:</strong> The <code>safePath</code> function in <code>seedling.ts</code> resolves paths but does not resolve symbolic links. An attacker could create a symlink (e.g., <code>src/benign_name.md</code> -&gt; <code>../THOUGHTS.md</code>) and then use <code>write_file</code> with <code>file_path: &quot;src/benign_name.md&quot;</code>. The basename check (<code>PROTECTED_FILES</code>) and policy&#39;s <code>write_file</code> deny patterns only see the given path, not the real target, so the write would succeed and m</p>

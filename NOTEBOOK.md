@@ -1,3 +1,23 @@
+## 2026-03-21 — #44: Seedling: unexpected crash on issue #39
+
+**Problem:** ## What happened
+
+Seedling failed with an unexpected error while working on issue #39.
+
+## Error
+
+```
+Error executing tool edit_file: Denied by policy: pattern "/home/" matches arguments
+```
+
+## Fix
+
+Investigate the error above and fix the root cause in `src/seedling.ts` or the relevant module.
+
+**Outcome:** No files were changed — issue was already resolved or required no code changes.
+
+---
+
 ## 2026-03-19 — #31: Symlink vulnerability in file operations allows bypass of protected file checks
 
 **Problem:** The `safePath` function in `seedling.ts` resolves paths but does not resolve symbolic links. An attacker could create a symlink (e.g., `src/benign_name.md` -> `../THOUGHTS.md`) and then use `write_file` with `file_path: "src/benign_name.md"`. The basename check (`PROTECTED_FILES`) and policy's `write_file` deny patterns only see the given path, not the real target, so the write would succeed and m
