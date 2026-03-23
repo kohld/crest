@@ -1,3 +1,45 @@
+## ArXiv cs.AI
+- When both Grounding and not Grounding are Bad -- A Partially Grounded Encoding of Planning into SAT (Extended Version)
+  https://arxiv.org/abs/2603.19429
+  arXiv:2603.19429v1 Announce Type: new 
+Abstract: Classical planning problems are typically defined using lifted first-order representations, which offer compactness and generality. While most planners ground these representations to simplify reasoning, this can cause an exponential blowup in size. Recent approaches instead operate directly on the lifted level to avoid full grounding. We explore a 
+- Hyperagents
+  https://arxiv.org/abs/2603.19461
+  arXiv:2603.19461v1 Announce Type: new 
+Abstract: Self-improving AI systems aim to reduce reliance on human engineering by learning to improve their own learning and problem-solving processes. Existing approaches to self-improvement rely on fixed, handcrafted meta-level mechanisms, fundamentally limiting how fast such systems can improve. The Darwin G\"odel Machine (DGM) demonstrates open-ended sel
+- Teaching an Agent to Sketch One Part at a Time
+  https://arxiv.org/abs/2603.19500
+  arXiv:2603.19500v1 Announce Type: new 
+Abstract: We develop a method for producing vector sketches one part at a time. To do this, we train a multi-modal language model-based agent using a novel multi-turn process-reward reinforcement learning following supervised fine-tuning. Our approach is enabled by a new dataset we call ControlSketch-Part, containing rich part-level annotations for sketches, 
+- Learning to Disprove: Formal Counterexample Generation with Large Language Models
+  https://arxiv.org/abs/2603.19514
+  arXiv:2603.19514v1 Announce Type: new 
+Abstract: Mathematical reasoning demands two critical, complementary skills: constructing rigorous proofs for true statements and discovering counterexamples that disprove false ones. However, current AI efforts in mathematics focus almost exclusively on proof construction, often neglecting the equally important task of finding counterexamples. In this paper,
+- ItinBench: Benchmarking Planning Across Multiple Cognitive Dimensions with Large Language Models
+  https://arxiv.org/abs/2603.19515
+  arXiv:2603.19515v1 Announce Type: new 
+Abstract: Large language models (LLMs) with advanced cognitive capabilities are emerging as agents for various reasoning and planning tasks. Traditional evaluations often focus on specific reasoning or planning questions within controlled environments. Recent studies have explored travel planning as a medium to integrate various verbal reasoning tasks into re
+- PA2D-MORL: Pareto Ascent Directional Decomposition based Multi-Objective Reinforcement Learning
+  https://arxiv.org/abs/2603.19579
+  arXiv:2603.19579v1 Announce Type: new 
+Abstract: Multi-objective reinforcement learning (MORL) provides an effective solution for decision-making problems involving conflicting objectives. However, achieving high-quality approximations to the Pareto policy set remains challenging, especially in complex tasks with continuous or high-dimensional state-action space. In this paper, we propose the Pare
+- PowerLens: Taming LLM Agents for Safe and Personalized Mobile Power Management
+  https://arxiv.org/abs/2603.19584
+  arXiv:2603.19584v1 Announce Type: new 
+Abstract: Battery life remains a critical challenge for mobile devices, yet existing power management mechanisms rely on static rules or coarse-grained heuristics that ignore user activities and personal preferences. We present PowerLens, a system that tames the reasoning power of Large Language Models (LLMs) for safe and personalized mobile power management 
+- HyEvo: Self-Evolving Hybrid Agentic Workflows for Efficient Reasoning
+  https://arxiv.org/abs/2603.19639
+  arXiv:2603.19639v1 Announce Type: new 
+Abstract: Although agentic workflows have demonstrated strong potential for solving complex tasks, existing automated generation methods remain inefficient and underperform, as they rely on predefined operator libraries and homogeneous LLM-only workflows in which all task-level computation is performed through probabilistic inference. To address these limitat
+- A Subgoal-driven Framework for Improving Long-Horizon LLM Agents
+  https://arxiv.org/abs/2603.19685
+  arXiv:2603.19685v1 Announce Type: new 
+Abstract: Large language model (LLM)-based agents have emerged as powerful autonomous controllers for digital environments, including mobile interfaces, operating systems, and web browsers. Web navigation, for example, requires handling dynamic content and long sequences of actions, making it particularly challenging. Existing LLM-based agents struggle with l
+- Stepwise: Neuro-Symbolic Proof Search for Automated Systems Verification
+  https://arxiv.org/abs/2603.19715
+  arXiv:2603.19715v1 Announce Type: new 
+Abstract: Formal verification via interactive theorem proving is increasingly used to ensure the correctness of critical systems, yet constructing large proof scripts remains highly manual and limits scalability. Advances in large language models (LLMs), especially in mathematical reasoning, make their integration into software verification increasingly promi
+
 ## Hacker News
 - Web LLM – WebGPU Powered Inference of Large Language Models
   https://github.com/mlc-ai/web-llm
