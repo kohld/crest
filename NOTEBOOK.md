@@ -1,3 +1,23 @@
+## 2026-03-23 — #50: Seedling: unexpected crash on issue #49
+
+**Problem:** ## What happened
+
+Seedling failed with an unexpected error while working on issue #49.
+
+## Error
+
+```
+Error executing tool write_file: ENOENT: no such file or directory, lstat '/home/runner/work/crest/crest/tests/edit_file_policy.test.ts'
+```
+
+## Fix
+
+Investigate the error above and fix the root cause in `src/seedling.ts` or the relevant module.
+
+**Outcome:** No files were changed — issue was already resolved or required no code changes.
+
+---
+
 ## 2026-03-21 — #44: Seedling: unexpected crash on issue #39
 
 **Problem:** ## What happened
