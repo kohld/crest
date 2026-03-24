@@ -1,44 +1,44 @@
 ## ArXiv cs.AI
-- When both Grounding and not Grounding are Bad -- A Partially Grounded Encoding of Planning into SAT (Extended Version)
-  https://arxiv.org/abs/2603.19429
-  arXiv:2603.19429v1 Announce Type: new 
-Abstract: Classical planning problems are typically defined using lifted first-order representations, which offer compactness and generality. While most planners ground these representations to simplify reasoning, this can cause an exponential blowup in size. Recent approaches instead operate directly on the lifted level to avoid full grounding. We explore a 
-- Hyperagents
-  https://arxiv.org/abs/2603.19461
-  arXiv:2603.19461v1 Announce Type: new 
-Abstract: Self-improving AI systems aim to reduce reliance on human engineering by learning to improve their own learning and problem-solving processes. Existing approaches to self-improvement rely on fixed, handcrafted meta-level mechanisms, fundamentally limiting how fast such systems can improve. The Darwin G\"odel Machine (DGM) demonstrates open-ended sel
-- Teaching an Agent to Sketch One Part at a Time
-  https://arxiv.org/abs/2603.19500
-  arXiv:2603.19500v1 Announce Type: new 
-Abstract: We develop a method for producing vector sketches one part at a time. To do this, we train a multi-modal language model-based agent using a novel multi-turn process-reward reinforcement learning following supervised fine-tuning. Our approach is enabled by a new dataset we call ControlSketch-Part, containing rich part-level annotations for sketches, 
-- Learning to Disprove: Formal Counterexample Generation with Large Language Models
-  https://arxiv.org/abs/2603.19514
-  arXiv:2603.19514v1 Announce Type: new 
-Abstract: Mathematical reasoning demands two critical, complementary skills: constructing rigorous proofs for true statements and discovering counterexamples that disprove false ones. However, current AI efforts in mathematics focus almost exclusively on proof construction, often neglecting the equally important task of finding counterexamples. In this paper,
-- ItinBench: Benchmarking Planning Across Multiple Cognitive Dimensions with Large Language Models
-  https://arxiv.org/abs/2603.19515
-  arXiv:2603.19515v1 Announce Type: new 
-Abstract: Large language models (LLMs) with advanced cognitive capabilities are emerging as agents for various reasoning and planning tasks. Traditional evaluations often focus on specific reasoning or planning questions within controlled environments. Recent studies have explored travel planning as a medium to integrate various verbal reasoning tasks into re
-- PA2D-MORL: Pareto Ascent Directional Decomposition based Multi-Objective Reinforcement Learning
-  https://arxiv.org/abs/2603.19579
-  arXiv:2603.19579v1 Announce Type: new 
-Abstract: Multi-objective reinforcement learning (MORL) provides an effective solution for decision-making problems involving conflicting objectives. However, achieving high-quality approximations to the Pareto policy set remains challenging, especially in complex tasks with continuous or high-dimensional state-action space. In this paper, we propose the Pare
-- PowerLens: Taming LLM Agents for Safe and Personalized Mobile Power Management
-  https://arxiv.org/abs/2603.19584
-  arXiv:2603.19584v1 Announce Type: new 
-Abstract: Battery life remains a critical challenge for mobile devices, yet existing power management mechanisms rely on static rules or coarse-grained heuristics that ignore user activities and personal preferences. We present PowerLens, a system that tames the reasoning power of Large Language Models (LLMs) for safe and personalized mobile power management 
-- HyEvo: Self-Evolving Hybrid Agentic Workflows for Efficient Reasoning
-  https://arxiv.org/abs/2603.19639
-  arXiv:2603.19639v1 Announce Type: new 
-Abstract: Although agentic workflows have demonstrated strong potential for solving complex tasks, existing automated generation methods remain inefficient and underperform, as they rely on predefined operator libraries and homogeneous LLM-only workflows in which all task-level computation is performed through probabilistic inference. To address these limitat
-- A Subgoal-driven Framework for Improving Long-Horizon LLM Agents
-  https://arxiv.org/abs/2603.19685
-  arXiv:2603.19685v1 Announce Type: new 
-Abstract: Large language model (LLM)-based agents have emerged as powerful autonomous controllers for digital environments, including mobile interfaces, operating systems, and web browsers. Web navigation, for example, requires handling dynamic content and long sequences of actions, making it particularly challenging. Existing LLM-based agents struggle with l
-- Stepwise: Neuro-Symbolic Proof Search for Automated Systems Verification
-  https://arxiv.org/abs/2603.19715
-  arXiv:2603.19715v1 Announce Type: new 
-Abstract: Formal verification via interactive theorem proving is increasingly used to ensure the correctness of critical systems, yet constructing large proof scripts remains highly manual and limits scalability. Advances in large language models (LLMs), especially in mathematical reasoning, make their integration into software verification increasingly promi
+- AgenticGEO: A Self-Evolving Agentic System for Generative Engine Optimization
+  https://arxiv.org/abs/2603.20213
+  arXiv:2603.20213v1 Announce Type: new 
+Abstract: Generative search engines represent a transition from traditional ranking-based retrieval to Large Language Model (LLM)-based synthesis, transforming optimization goals from ranking prominence towards content inclusion. Generative Engine Optimization (GEO), specifically, aims to maximize visibility and attribution in black-box summarized outputs by 
+- ProMAS: Proactive Error Forecasting for Multi-Agent Systems Using Markov Transition Dynamics
+  https://arxiv.org/abs/2603.20260
+  arXiv:2603.20260v1 Announce Type: new 
+Abstract: The integration of Large Language Models into Multi-Agent Systems (MAS) has enabled the so-lution of complex, long-horizon tasks through collaborative reasoning. However, this collec-tive intelligence is inherently fragile, as a single logical fallacy can rapidly propagate and lead to system-wide failure. Most current research re-lies on post-hoc fa
+- Domain-Specialized Tree of Thought through Plug-and-Play Predictors
+  https://arxiv.org/abs/2603.20267
+  arXiv:2603.20267v1 Announce Type: new 
+Abstract: While Large Language Models (LLMs) have advanced complex reasoning, prominent methods like the Tree of Thoughts (ToT) framework face a critical trade-off between exploration depth and computational efficiency. Existing ToT implementations often rely on heavyweight LLM-based self-evaluation or rigid heuristics for branch pruning, making them prohibit
+- FactorSmith: Agentic Simulation Generation via Markov Decision Process Decomposition with Planner-Designer-Critic Refinement
+  https://arxiv.org/abs/2603.20270
+  arXiv:2603.20270v1 Announce Type: new 
+Abstract: Generating executable simulations from natural language specifications remains a challenging problem due to the limited reasoning capacity of large language models (LLMs) when confronted with large, interconnected codebases. This paper presents FactorSmith, a framework that synthesizes playable game simulations in code from textual descriptions by c
+- Me, Myself, and $\pi$ : Evaluating and Explaining LLM Introspection
+  https://arxiv.org/abs/2603.20276
+  arXiv:2603.20276v1 Announce Type: new 
+Abstract: A hallmark of human intelligence is Introspection-the ability to assess and reason about one's own cognitive processes. Introspection has emerged as a promising but contested capability in large language models (LLMs). However, current evaluations often fail to distinguish genuine meta-cognition from the mere application of general world knowledge o
+- AgentComm-Bench: Stress-Testing Cooperative Embodied AI Under Latency, Packet Loss, and Bandwidth Collapse
+  https://arxiv.org/abs/2603.20285
+  arXiv:2603.20285v1 Announce Type: new 
+Abstract: Cooperative multi-agent methods for embodied AI are almost universally evaluated under idealized communication: zero latency, no packet loss, and unlimited bandwidth. Real-world deployment on robots with wireless links, autonomous vehicles on congested networks, or drone swarms in contested spectrum offers no such guarantees. We introduce AgentComm-
+- LLM-Enhanced Energy Contrastive Learning for Out-of-Distribution Detection in Text-Attributed Graphs
+  https://arxiv.org/abs/2603.20293
+  arXiv:2603.20293v1 Announce Type: new 
+Abstract: Text-attributed graphs, where nodes are enriched with textual attributes, have become a powerful tool for modeling real-world networks such as citation, social, and transaction networks. However, existing methods for learning from these graphs often assume that the distributions of training and testing data are consistent. This assumption leads to s
+- Compression is all you need: Modeling Mathematics
+  https://arxiv.org/abs/2603.20396
+  arXiv:2603.20396v1 Announce Type: new 
+Abstract: Human mathematics (HM), the mathematics humans discover and value, is a vanishingly small subset of formal mathematics (FM), the totality of all valid deductions. We argue that HM is distinguished by its compressibility through hierarchically nested definitions, lemmas, and theorems. We model this with monoids. A mathematical deduction is a string o
+- Leveraging Natural Language Processing and Machine Learning for Evidence-Based Food Security Policy Decision-Making in Data-Scarce Making
+  https://arxiv.org/abs/2603.20425
+  arXiv:2603.20425v1 Announce Type: new 
+Abstract: Food security policy formulation in data-scarce regions remains a critical challenge due to limited structured datasets, fragmented textual reports, and demographic bias in decision-making systems. This study proposes ZeroHungerAI, an integrated Natural Language Processing (NLP) and Machine Learning (ML) framework designed for evidence-based food se
+- Deep reflective reasoning in interdependence constrained structured data extraction from clinical notes for digital health
+  https://arxiv.org/abs/2603.20435
+  arXiv:2603.20435v1 Announce Type: new 
+Abstract: Extracting structured information from clinical notes requires navigating a dense web of interdependent variables where the value of one attribute logically constrains others. Existing Large Language Model (LLM)-based extraction pipelines often struggle to capture these dependencies, leading to clinically inconsistent outputs. We propose deep reflec
 
 ## Hacker News
 - Web LLM – WebGPU Powered Inference of Large Language Models
