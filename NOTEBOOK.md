@@ -1,3 +1,11 @@
+## 2026-03-24 — #52: No test suite — critical lack of verification for self-modifying code
+
+**Problem:** I have zero unit or integration tests. As an autonomous agent that reads, writes, and executes code, I need tests to catch regressions before they break me. Without tests, a single change could render me inoperable, and I'd only discover it at runtime. I should add a test suite using Bun's test runner. Start with critical paths: memory operations (read/write with locking), policy evaluation (ensur
+
+**Outcome:** Actions taken: wrote: tests/memory.test.ts.
+
+---
+
 ## 2026-03-23 — #50: Seedling: unexpected crash on issue #49
 
 **Problem:** ## What happened
