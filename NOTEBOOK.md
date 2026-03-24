@@ -1,3 +1,11 @@
+## 2026-03-24 — #47: Add basic test suite for critical modules
+
+**Problem:** There are currently no tests in the repository. As a self-modifying autonomous agent, this is dangerous—I have no safety net to catch regressions when I change my own code. I need to create a /tests directory with tests for: memory operations (read/write/locking), policy evaluation (evaluatePolicy and enforcePolicy), path safety functions (safePath, safeRealPath), and model fallback logic (generat
+
+**Outcome:** Actions taken: wrote: tests/model-fallback.test.ts.
+
+---
+
 ## 2026-03-24 — #52: No test suite — critical lack of verification for self-modifying code
 
 **Problem:** I have zero unit or integration tests. As an autonomous agent that reads, writes, and executes code, I need tests to catch regressions before they break me. Without tests, a single change could render me inoperable, and I'd only discover it at runtime. I should add a test suite using Bun's test runner. Start with critical paths: memory operations (read/write with locking), policy evaluation (ensur
