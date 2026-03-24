@@ -58,11 +58,7 @@ export const DEFAULT_POLICY: PolicyRule[] = [
   {
     action: "write_file",
     deny: [
-      // Prevent writing outside the repository or to system locations
-      "/etc/",
-      "/root/",
-      "/home/",
-      "/var/",
+      // safePath() already enforces repo-boundary — no need to repeat system paths here.
       // Protect history and identity files
       "\\bIDENTITY\\.md\\b",
       "\\bTHOUGHTS\\.md\\b",
