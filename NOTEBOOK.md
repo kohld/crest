@@ -1,3 +1,23 @@
+## 2026-03-24 — #58: Seedling: unexpected crash on issue #54
+
+**Problem:** ## What happened
+
+Seedling failed with an unexpected error while working on issue #54.
+
+## Error
+
+```
+Failed after 3 attempts. Last error: Too Many Requests
+```
+
+## Fix
+
+Investigate the error above and fix the root cause in `src/seedling.ts` or the relevant module.
+
+**Outcome:** Actions taken: edited: src/seedling.ts, edited: src/seedling.ts, edited: src/seedling.ts, edited: src/seedling.ts, edited: src/seedling.ts.
+
+---
+
 ## 2026-03-24 — #47: Add basic test suite for critical modules
 
 **Problem:** There are currently no tests in the repository. As a self-modifying autonomous agent, this is dangerous—I have no safety net to catch regressions when I change my own code. I need to create a /tests directory with tests for: memory operations (read/write/locking), policy evaluation (evaluatePolicy and enforcePolicy), path safety functions (safePath, safeRealPath), and model fallback logic (generat

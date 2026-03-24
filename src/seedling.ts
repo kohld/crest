@@ -5,8 +5,55 @@ import { resolve } from "path";
 import { realpath } from "fs/promises";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue, openIssue } from "./github";
-import { generateWithFallback, MODEL_CHAIN } from "./model";
 import { enforcePolicy } from "./policy";
+
+// Define MODEL_CHAIN locally since we can't reliably import from model.ts due to type issues
+const MODEL_CHAIN = [
+  "stepfun/step-3.5-flash:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "meta-llama/llama-3.3-70b-instruct:free",
+];
+
+/**
+ * Try each model in MODEL_CHAIN until one succeeds.
+ * For each model, retry up to 3 times with exponential backoff on transient errors (429, 400, 503).
+ * Skips to next model after exhausting retries for current model.
+ * Throws after all models are exhausted.
+ */
+async function generateWithFallback(args: Parameters<typeof generateText>[0]): ReturnType<typeof generateText> {
+  let lastError: unknown;
+
+  for (const modelId of MODEL_CHAIN) {
+    let retriesLeft = 3;
+    let delayMs = 100;
+
+    while (retriesLeft > 0) {
+      try {
+        console.log(`Using model: ${modelId} (retries left: ${retriesLeft})`);
+        return await generateText({ ...args, model: openrouter(modelId) });
+      } catch (e: any) {
+        const status = e?.statusCode ?? e?.cause?.statusCode;
+        const isTransient = status === 429 || status === 400 || status === 503;
+
+        if (!isTransient || retriesLeft === 1) {
+          // If non-transient or no retries left, break out of retry loop for this model
+          lastError = e;
+          break;
+        }
+
+        // Wait and retry with exponential backoff
+        console.warn(`Model ${modelId} transient error (${status}), retrying in ${delayMs}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        retriesLeft--;
+        delayMs *= 2;
+      }
+    }
+  }
+
+  throw new Error(
+    `All models exhausted. Last error: ${lastError instanceof Error ? lastError.message : String(lastError)}`
+  );
+}
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 const ROOT = import.meta.dir.replace("/src", "");
@@ -352,19 +399,49 @@ export async function seedling(): Promise<void> {
 
   let text = "";
 
+  // Wrapper for generateWithFallback with retry logic on transient errors
+  async function generateWithFallbackRetry(args: Parameters<typeof generateWithFallback>[0]): ReturnType<typeof generateWithFallback> {
+    let lastError: unknown;
+    let retriesLeft = 3;
+    let delayMs = 100;
+
+    while (retriesLeft > 0) {
+      try {
+        return await generateWithFallback(args);
+      } catch (e: any) {
+        const status = e?.statusCode ?? e?.cause?.statusCode;
+        const isTransient = status === 429 || status === 400 || status === 503;
+
+        if (!isTransient || retriesLeft === 1) {
+          // If non-transient or no retries left, throw the error
+          lastError = e;
+          break;
+        }
+
+        // Wait and retry with exponential backoff
+        console.warn(`Transient error (${status}), retrying in ${delayMs}ms... (${retriesLeft - 1} retries left)`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        retriesLeft--;
+        delayMs *= 2;
+      }
+    }
+
+    throw lastError;
+  }
+
   try {
-    const result = await generateWithFallback({
+    const result = await generateWithFallbackRetry({
       system: systemPrompt,
       prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
       maxSteps: 20,
-      experimental_repairToolCall: async ({ toolCall, error, messages, system }) => {
+      experimental_repairToolCall: async ({ toolCall, error, messages, system }: { toolCall: any; error: any; messages: any; system: string | undefined }) => {
         console.warn(`Tool call repair needed for ${toolCall.toolName}: ${error.message}`);
         const validTools = Object.keys(toolsMap);
         if (!validTools.includes(toolCall.toolName)) {
           console.warn(`Unknown tool '${toolCall.toolName}' — skipping.`);
           return null;
         }
-        const { text: repairedArgs } = await generateWithFallback({
+        const { text: repairedArgs } = await generateWithFallbackRetry({
           system: system ?? "",
           messages: [
             ...messages,
