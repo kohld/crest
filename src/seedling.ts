@@ -248,9 +248,9 @@ export async function seedling(): Promise<void> {
         file_path: z.string().describe("Relative path from repo root, e.g. src/think.ts"),
       }),
       execute: async ({ file_path }) => {
-        const realPath = await safeRealPath(file_path);
-        enforcePolicy("read_file", { file_path, real_path: realPath });
         try {
+          const realPath = await safeRealPath(file_path);
+          enforcePolicy("read_file", { file_path, real_path: realPath });
           return await Bun.file(realPath).text();
         } catch (e) {
           return `Error reading file: ${e}`;
@@ -264,12 +264,11 @@ export async function seedling(): Promise<void> {
         content: z.string(),
       }),
       execute: async ({ file_path, content }) => {
-        const realPath = await safeRealPath(file_path);
-        enforcePolicy("write_file", { file_path, content, real_path: realPath });
-        // Check protected files using the real path's basename to prevent symlink bypass
-        const filename = realPath.split("/").pop() ?? realPath;
-        if (PROTECTED_FILES.has(filename)) return `Refused: ${file_path} is a protected history file.`;
         try {
+          const realPath = await safeRealPath(file_path).catch(() => safePath(file_path));
+          enforcePolicy("write_file", { file_path, content, real_path: realPath });
+          const filename = realPath.split("/").pop() ?? realPath;
+          if (PROTECTED_FILES.has(filename)) return `Refused: ${file_path} is a protected history file.`;
           await Bun.write(realPath, content);
           actionsLog.push(`wrote: ${file_path}`);
           return `Written: ${file_path}`;
@@ -286,12 +285,11 @@ export async function seedling(): Promise<void> {
         new_string: z.string().describe("Replacement string"),
       }),
       execute: async ({ file_path, old_string, new_string }) => {
-        const realPath = await safeRealPath(file_path);
-        enforcePolicy("write_file", { file_path, content: new_string, real_path: realPath });
-        // Check protected files using the real path's basename to prevent symlink bypass
-        const filename = realPath.split("/").pop() ?? realPath;
-        if (PROTECTED_FILES.has(filename)) return `Refused: ${file_path} is a protected history file.`;
         try {
+          const realPath = await safeRealPath(file_path).catch(() => safePath(file_path));
+          enforcePolicy("write_file", { file_path, content: new_string, real_path: realPath });
+          const filename = realPath.split("/").pop() ?? realPath;
+          if (PROTECTED_FILES.has(filename)) return `Refused: ${file_path} is a protected history file.`;
           const current = await Bun.file(realPath).text();
           if (!current.includes(old_string)) return `Error: old_string not found in ${file_path}. Read the file first.`;
           await Bun.write(realPath, current.replace(old_string, new_string));
