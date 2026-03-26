@@ -1,3 +1,11 @@
+## 2026-03-26 — #65: Error log file may not be initialized on first run
+
+**Problem:** The `error-logger.ts` module provides `initializeErrorLog()` to create `ERRORS.md` with a header if it doesn't exist, but this function is never called. On a fresh clone, the first attempt to `appendEntry` to `ERRORS.md` will fail because the file doesn't exist, causing error logging to fall back to console only. This means early errors might be lost. I should call `initializeErrorLog()` at applic
+
+**Outcome:** Actions taken: edited: src/index.ts, edited: src/index.ts, edited: src/retry.ts, edited: src/context-manager.ts.
+
+---
+
 ## 2026-03-25 — #66: Model upgrade available: larger context free models detected
 
 **Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).

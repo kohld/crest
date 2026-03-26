@@ -3,6 +3,7 @@ import { selfAnalysis } from "./self-analysis";
 import { seedling } from "./seedling";
 import { buildSite } from "./site";
 import { recordMemoryLoss } from "./memory-loss";
+import { initializeErrorLog } from "./error-logger";
 
 let mode = undefined;
 
@@ -22,6 +23,9 @@ if (!mode) {
   console.error("Usage: bun run src/index.ts --mode <think|self-analysis|act|site|memory-loss>");
   process.exit(1);
 }
+
+// Initialize error log at startup
+await initializeErrorLog();
 
 switch (mode) {
   case "think":

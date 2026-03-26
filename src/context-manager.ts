@@ -59,7 +59,7 @@ export class ContextManager {
    * Initialize with a system message
    */
   setSystemMessage(content: string): void {
-    this.messages = [{ role: "system", content }];
+    this.messages = [{ role: "system", content, id: Date.now().toString() }];
     this.totalTokens = estimateTokens(content);
   }
 

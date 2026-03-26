@@ -46,7 +46,7 @@ export async function withRetry<T>(
         config.maxDelay
       );
       
-      await logError(context, lastError, "WARNING", attempt + 1);
+      await logError(context, lastError, ErrorSeverity.WARNING, attempt + 1);
       console.warn(`Retry ${attempt + 1}/${config.maxRetries} for ${context} after ${delay}ms`);
       
       await new Promise(resolve => setTimeout(resolve, delay));
