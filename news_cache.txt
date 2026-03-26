@@ -1,44 +1,44 @@
 ## ArXiv cs.AI
-- Memory Bear AI Memory Science Engine for Multimodal Affective Intelligence: A Technical Report
-  https://arxiv.org/abs/2603.22306
-  arXiv:2603.22306v1 Announce Type: new 
-Abstract: Affective judgment in real interaction is rarely a purely local prediction problem. Emotional meaning often depends on prior trajectory, accumulated context, and multimodal evidence that may be weak, noisy, or incomplete at the current moment. Although multimodal emotion recognition (MER) has improved the integration of text, speech, and visual sign
-- The Efficiency Attenuation Phenomenon: A Computational Challenge to the Language of Thought Hypothesis
-  https://arxiv.org/abs/2603.22312
-  arXiv:2603.22312v1 Announce Type: new 
-Abstract: This paper computationally investigates whether thought requires a language-like format, as posited by the Language of Thought (LoT) hypothesis. We introduce the ``AI Private Language'' thought experiment: if two artificial agents develop an efficient, inscrutable communication protocol via multi-agent reinforcement learning (MARL), and their perfor
-- Dynamic Fusion-Aware Graph Convolutional Neural Network for Multimodal Emotion Recognition in Conversations
-  https://arxiv.org/abs/2603.22345
-  arXiv:2603.22345v1 Announce Type: new 
-Abstract: Multimodal emotion recognition in conversations (MERC) aims to identify and understand the emotions expressed by speakers during utterance interaction from multiple modalities (e.g., text, audio, images, etc.). Existing studies have shown that GCN can improve the performance of MERC by modeling dependencies between speakers. However, existing method
-- Intelligence Inertia: Physical Principles and Applications
-  https://arxiv.org/abs/2603.22347
-  arXiv:2603.22347v1 Announce Type: new 
-Abstract: While Landauer's principle establishes the fundamental thermodynamic floor for information erasure and Fisher Information provides a metric for local curvature in parameter space, these classical frameworks function effectively only as approximations within regimes of sparse rule-constraints. They fail to explain the super-linear, and often explosiv
-- Session Risk Memory (SRM): Temporal Authorization for Deterministic Pre-Execution Safety Gates
-  https://arxiv.org/abs/2603.22350
-  arXiv:2603.22350v1 Announce Type: new 
-Abstract: Deterministic pre-execution safety gates evaluate whether individual agent actions are compatible with their assigned roles. While effective at per-action authorization, these systems are structurally blind to distributed attacks that decompose harmful intent across multiple individually-compliant steps. This paper introduces Session Risk Memory (SR
-- STEM Agent: A Self-Adapting, Tool-Enabled, Extensible Architecture for Multi-Protocol AI Agent Systems
-  https://arxiv.org/abs/2603.22359
-  arXiv:2603.22359v1 Announce Type: new 
-Abstract: Current AI agent frameworks commit early to a single interaction protocol, a fixed tool integration strategy, and static user models, limiting their deployment across diverse interaction paradigms. To address these constraints, we introduce STEM Agent (Self-adapting, Tool-enabled, Extensible, Multi-agent), a modular architecture inspired by biologic
-- From Static Templates to Dynamic Runtime Graphs: A Survey of Workflow Optimization for LLM Agents
-  https://arxiv.org/abs/2603.22386
-  arXiv:2603.22386v1 Announce Type: new 
-Abstract: Large language model (LLM)-based systems are becoming increasingly popular for solving tasks by constructing executable workflows that interleave LLM calls, information retrieval, tool use, code execution, memory updates, and verification. This survey reviews recent methods for designing and optimizing such workflows, which we treat as agentic compu
-- Computational Arbitrage in AI Model Markets
-  https://arxiv.org/abs/2603.22404
-  arXiv:2603.22404v1 Announce Type: new 
-Abstract: Consider a market of competing model providers selling query access to models with varying costs and capabilities. Customers submit problem instances and are willing to pay up to a budget for a verifiable solution. An arbitrageur efficiently allocates inference budget across providers to undercut the market, thus creating a competitive offering with
-- Maximum Entropy Relaxation of Multi-Way Cardinality Constraints for Synthetic Population Generation
-  https://arxiv.org/abs/2603.22558
-  arXiv:2603.22558v1 Announce Type: new 
-Abstract: Generating synthetic populations from aggregate statistics is a core component of microsimulation, agent-based modeling, policy analysis, and privacy-preserving data release. Beyond classical census marginals, many applications require matching heterogeneous unary, binary, and ternary constraints derived from surveys, expert knowledge, or automatica
-- AI Mental Models: Learned Intuition and Deliberation in a Bounded Neural Architecture
-  https://arxiv.org/abs/2603.22561
-  arXiv:2603.22561v1 Announce Type: new 
-Abstract: This paper asks whether a bounded neural architecture can exhibit a meaningful division of labor between intuition and deliberation on a classic 64-item syllogistic reasoning benchmark. More broadly, the benchmark is relevant to ongoing debates about world models and multi-stage reasoning in AI. It provides a controlled setting for testing whether a
+- PLDR-LLMs Reason At Self-Organized Criticality
+  https://arxiv.org/abs/2603.23539
+  arXiv:2603.23539v1 Announce Type: new 
+Abstract: We show that PLDR-LLMs pretrained at self-organized criticality exhibit reasoning at inference time. The characteristics of PLDR-LLM deductive outputs at criticality is similar to second-order phase transitions. At criticality, the correlation length diverges, and the deductive outputs attain a metastable steady state. The steady state behaviour sug
+- Environment Maps: Structured Environmental Representations for Long-Horizon Agents
+  https://arxiv.org/abs/2603.23610
+  arXiv:2603.23610v1 Announce Type: new 
+Abstract: Although large language models (LLMs) have advanced rapidly, robust automation of complex software workflows remains an open problem. In long-horizon settings, agents frequently suffer from cascading errors and environmental stochasticity; a single misstep in a dynamic interface can lead to task failure, resulting in hallucinations or trial-and-erro
+- Evaluating a Multi-Agent Voice-Enabled Smart Speaker for Care Homes: A Safety-Focused Framework
+  https://arxiv.org/abs/2603.23625
+  arXiv:2603.23625v1 Announce Type: new 
+Abstract: Artificial intelligence (AI) is increasingly being explored in health and social care to reduce administrative workload and allow staff to spend more time on patient care. This paper evaluates a voice-enabled Care Home Smart Speaker designed to support everyday activities in residential care homes, including spoken access to resident records, remind
+- Can LLM Agents Be CFOs? A Benchmark for Resource Allocation in Dynamic Enterprise Environments
+  https://arxiv.org/abs/2603.23638
+  arXiv:2603.23638v1 Announce Type: new 
+Abstract: Large language models (LLMs) have enabled agentic systems that can reason, plan, and act across complex tasks, but it remains unclear whether they can allocate resources effectively under uncertainty. Unlike short-horizon reactive decisions, allocation requires committing scarce resources over time while balancing competing objectives and preserving
+- GTO Wizard Benchmark
+  https://arxiv.org/abs/2603.23660
+  arXiv:2603.23660v1 Announce Type: new 
+Abstract: We introduce GTO Wizard Benchmark, a public API and standardized evaluation framework for benchmarking algorithms in Heads-Up No-Limit Texas Hold'em (HUNL). The benchmark evaluates agents against GTO Wizard AI, a state-of-the-art superhuman poker agent that approximates Nash Equilibria, and defeated Slumbot, the 2018 Annual Computer Poker Competitio
+- Grounding Vision and Language to 3D Masks for Long-Horizon Box Rearrangement
+  https://arxiv.org/abs/2603.23676
+  arXiv:2603.23676v1 Announce Type: new 
+Abstract: We study long-horizon planning in 3D environments from under-specified natural-language goals using only visual observations, focusing on multi-step 3D box rearrangement tasks. Existing approaches typically rely on symbolic planners with brittle relational grounding of states and goals, or on direct action-sequence generation from 2D vision-language
+- LLMs Do Not Grade Essays Like Humans
+  https://arxiv.org/abs/2603.23714
+  arXiv:2603.23714v1 Announce Type: new 
+Abstract: Large language models have recently been proposed as tools for automated essay scoring, but their agreement with human grading remains unclear. In this work, we evaluate how LLM-generated scores compare with human grades and analyze the grading behavior of several models from the GPT and Llama families in an out-of-the-box setting, without task-spec
+- Efficient Benchmarking of AI Agents
+  https://arxiv.org/abs/2603.23749
+  arXiv:2603.23749v1 Announce Type: new 
+Abstract: Evaluating AI agents on comprehensive benchmarks is expensive because each evaluation requires interactive rollouts with tool use and multi-step reasoning. We study whether small task subsets can preserve agent rankings at substantially lower cost. Unlike static language model benchmarks, agent evaluation is subject to scaffold-driven distribution s
+- Learning-guided Prioritized Planning for Lifelong Multi-Agent Path Finding in Warehouse Automation
+  https://arxiv.org/abs/2603.23838
+  arXiv:2603.23838v1 Announce Type: new 
+Abstract: Lifelong Multi-Agent Path Finding (MAPF) is critical for modern warehouse automation, which requires multiple robots to continuously navigate conflict-free paths to optimize the overall system throughput. However, the complexity of warehouse environments and the long-term dynamics of lifelong MAPF often demand costly adaptations to classical search-
+- VehicleMemBench: An Executable Benchmark for Multi-User Long-Term Memory in In-Vehicle Agents
+  https://arxiv.org/abs/2603.23840
+  arXiv:2603.23840v1 Announce Type: new 
+Abstract: With the growing demand for intelligent in-vehicle experiences, vehicle-based agents are evolving from simple assistants to long-term companions. This evolution requires agents to continuously model multi-user preferences and make reliable decisions in the face of inter-user preference conflicts and changing habits over time. However, existing bench
 
 ## Hacker News
 - Web LLM – WebGPU Powered Inference of Large Language Models
