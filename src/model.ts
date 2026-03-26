@@ -4,12 +4,8 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText } from "ai";
 import type { Parameters as GenerateTextParameters } from "ai";
+import { MODEL_CHAIN } from "./config";
 
-export const MODEL_CHAIN = [
-  "stepfun/step-3.5-flash:free",
-  "nvidia/nemotron-3-super-120b-a12b:free",
-  "meta-llama/llama-3.3-70b-instruct:free",
-];
 
 // Re-export primary model for config consumers
 export { MODEL_CHAIN as MODELS };

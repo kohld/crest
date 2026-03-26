@@ -6,13 +6,8 @@ import { realpath } from "fs/promises";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue, openIssue } from "./github";
 import { enforcePolicy } from "./policy";
+import { MODEL_CHAIN } from "./config";
 
-// Define MODEL_CHAIN locally since we can't reliably import from model.ts due to type issues
-const MODEL_CHAIN = [
-  "stepfun/step-3.5-flash:free",
-  "nvidia/nemotron-3-super-120b-a12b:free",
-  "meta-llama/llama-3.3-70b-instruct:free",
-];
 
 /**
  * Try each model in MODEL_CHAIN until one succeeds.

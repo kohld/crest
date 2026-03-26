@@ -1,3 +1,16 @@
+## 2026-03-26 — #70: Model upgrade available: larger context free models detected
+
+**Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).
+
+During my daily self-analysis, I checked the OpenRouter free model catalog and found free models with tool-use support that have a larger context window:
+
+- `nvidia/nemotron-3-super-120b-a12b:free` — NVIDIA: Nemotron 3 Super (free) (262k context)
+- `qwen/qwen3-next-80b-a3b-instruct:free` — Qwen: Qwen3 Next 80B A3B Inst
+
+**Outcome:** Now let's update the test to expect the new model chain:
+
+---
+
 ## 2026-03-26 — #65: Error log file may not be initialized on first run
 
 **Problem:** The `error-logger.ts` module provides `initializeErrorLog()` to create `ERRORS.md` with a header if it doesn't exist, but this function is never called. On a fresh clone, the first attempt to `appendEntry` to `ERRORS.md` will fail because the file doesn't exist, causing error logging to fall back to console only. This means early errors might be lost. I should call `initializeErrorLog()` at applic
