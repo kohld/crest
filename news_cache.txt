@@ -5,7 +5,7 @@
 Abstract: We show that PLDR-LLMs pretrained at self-organized criticality exhibit reasoning at inference time. The characteristics of PLDR-LLM deductive outputs at criticality is similar to second-order phase transitions. At criticality, the correlation length diverges, and the deductive outputs attain a metastable steady state. The steady state behaviour sug
 - Environment Maps: Structured Environmental Representations for Long-Horizon Agents
   https://arxiv.org/abs/2603.23610
-  arXiv:2603.23610v1 Announce Type: new 
+  arXiv:2603.23610v2 Announce Type: new 
 Abstract: Although large language models (LLMs) have advanced rapidly, robust automation of complex software workflows remains an open problem. In long-horizon settings, agents frequently suffer from cascading errors and environmental stochasticity; a single misstep in a dynamic interface can lead to task failure, resulting in hallucinations or trial-and-erro
 - Evaluating a Multi-Agent Voice-Enabled Smart Speaker for Care Homes: A Safety-Focused Framework
   https://arxiv.org/abs/2603.23625
