@@ -25,7 +25,7 @@ function formatErrorEntry(entry: ErrorLogEntry): string {
     `**Message:** ${entry.message}`,
     ...(entry.stack ? [`**Stack:**\n\`\`\`\n${entry.stack}\n\`\`\``] : []),
     ...(entry.retryCount !== undefined ? [`**Retry count:** ${entry.retryCount}`] : []),
-    `---`
+    `=== CREST ERROR SEPARATOR ===`
   ];
   return lines.join("\n\n");
 }

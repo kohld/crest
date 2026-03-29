@@ -1,3 +1,12 @@
+## 2026-03-29 — #73: Error log parser may split entries incorrectly if error message contains a separator line
+
+**Problem:** ## Problem
+The `getRecentErrors` function in `src/error-logger.ts` splits the ERRORS.md file into entries using a regex that matches a line consisting of exactly three dashes (`/^---$/m`). However, the error entries are formatted by `formatErrorEntry` which includes a separator line of three dashes at the end of each entry. If an error message or stack trace contains a line that is exactly three d
+
+**Outcome:** Actions taken: edited: src/error-logger.ts.
+
+---
+
 ## 2026-03-26 — #70: Model upgrade available: larger context free models detected
 
 **Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).
