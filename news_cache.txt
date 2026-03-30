@@ -1,3 +1,45 @@
+## ArXiv cs.AI
+- BeSafe-Bench: Unveiling Behavioral Safety Risks of Situated Agents in Functional Environments
+  https://arxiv.org/abs/2603.25747
+  arXiv:2603.25747v1 Announce Type: new 
+Abstract: The rapid evolution of Large Multimodal Models (LMMs) has enabled agents to perform complex digital and physical tasks, yet their deployment as autonomous decision-makers introduces substantial unintentional behavioral safety risks. However, the absence of a comprehensive safety benchmark remains a major bottleneck, as existing evaluations rely on l
+- AutoB2G: A Large Language Model-Driven Agentic Framework For Automated Building-Grid Co-Simulation
+  https://arxiv.org/abs/2603.26005
+  arXiv:2603.26005v1 Announce Type: new 
+Abstract: The growing availability of building operational data motivates the use of reinforcement learning (RL), which can learn control policies directly from data and cope with the complexity and uncertainty of large-scale building clusters. However, most existing simulation environments prioritize building-side performance metrics and lack systematic eval
+- Semi-Automated Knowledge Engineering and Process Mapping for Total Airport Management
+  https://arxiv.org/abs/2603.26076
+  arXiv:2603.26076v1 Announce Type: new 
+Abstract: Documentation of airport operations is inherently complex due to extensive technical terminology, rigorous regulations, proprietary regional information, and fragmented communication across multiple stakeholders. The resulting data silos and semantic inconsistencies present a significant impediment to the Total Airport Management (TAM) initiative. T
+- GUIDE: Resolving Domain Bias in GUI Agents through Real-Time Web Video Retrieval and Plug-and-Play Annotation
+  https://arxiv.org/abs/2603.26266
+  arXiv:2603.26266v1 Announce Type: new 
+Abstract: Large vision-language models have endowed GUI agents with strong general capabilities for interface understanding and interaction. However, due to insufficient exposure to domain-specific software operation data during training, these agents exhibit significant domain bias - they lack familiarity with the specific operation workflows (planning) and 
+- AIRA_2: Overcoming Bottlenecks in AI Research Agents
+  https://arxiv.org/abs/2603.26499
+  arXiv:2603.26499v1 Announce Type: new 
+Abstract: Existing research has identified three structural performance bottlenecks in AI research agents: (1) synchronous single-GPU execution constrains sample throughput, limiting the benefit of search; (2) a generalization gap where validation-based selection causes performance to degrade over extended search horizons; and (3) the limited capability of fi
+- CADSmith: Multi-Agent CAD Generation with Programmatic Geometric Validation
+  https://arxiv.org/abs/2603.26512
+  arXiv:2603.26512v1 Announce Type: new 
+Abstract: Existing methods for text-to-CAD generation either operate in a single pass with no geometric verification or rely on lossy visual feedback that cannot resolve dimensional errors. We present CADSmith, a multi-agent pipeline that generates CadQuery code from natural language. It then undergoes an iterative refinement process through two nested correc
+- Stabilizing Rubric Integration Training via Decoupled Advantage Normalization
+  https://arxiv.org/abs/2603.26535
+  arXiv:2603.26535v1 Announce Type: new 
+Abstract: We propose Process-Aware Policy Optimization (PAPO), a method that integrates process-level evaluation into Group Relative Policy Optimization (GRPO) through decoupled advantage normalization, to address two limitations of existing reward designs. Outcome reward models (ORM) evaluate only final-answer correctness, treating all correct responses iden
+- DesignWeaver: Dimensional Scaffolding for Text-to-Image Product Design
+  https://arxiv.org/abs/2502.09867
+  arXiv:2502.09867v2 Announce Type: cross 
+Abstract: Generative AI has enabled novice designers to quickly create professional-looking visual representations for product concepts. However, novices have limited domain knowledge that could constrain their ability to write prompts that effectively explore a product design space. To understand how experts explore and communicate about design spaces, we 
+- A Lightweight, Transferable, and Self-Adaptive Framework for Intelligent DC Arc-Fault Detection in Photovoltaic Systems
+  https://arxiv.org/abs/2603.25749
+  arXiv:2603.25749v1 Announce Type: cross 
+Abstract: Arc-fault circuit interrupters (AFCIs) are essential for mitigating fire hazards in residential photovoltaic (PV) systems, yet achieving reliable DC arc-fault detection under real-world conditions remains challenging. Spectral interference from inverter switching, hardware heterogeneity, operating-condition drift, and environmental noise collectiv
+- Sommelier: Scalable Open Multi-turn Audio Pre-processing for Full-duplex Speech Language Models
+  https://arxiv.org/abs/2603.25750
+  arXiv:2603.25750v1 Announce Type: cross 
+Abstract: As the paradigm of AI shifts from text-based LLMs to Speech Language Models (SLMs), there is a growing demand for full-duplex systems capable of real-time, natural human-computer interaction. However, the development of such models is constrained by the scarcity of high-quality, multi-speaker conversational data, as existing large-scale resources 
+
 ## Hacker News
 - Web LLM – WebGPU Powered Inference of Large Language Models
   https://github.com/mlc-ai/web-llm
