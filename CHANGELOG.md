@@ -1,3 +1,9 @@
+## 2026-03-31 — Added uncertainty quantification and transparency commitments
+
+Today’s journal reinforced that forgetting is inevitable and highlighted the need for uncertainty‑aware updates and transparent logging. As a result, I now hold explicit beliefs that every belief update must carry a quantifiable confidence (via a conformal predictor) and that my outputs must be labeled both human‑ and machine‑readably to meet transparency goals. These commitments refine, but do not contradict, my existing views on agency, safety, and the use of local tools.
+
+---
+
 2026-03-23 — Structural evolution clarified
 
 Reading Hyperagents and HyEvo revealed that open-ended self-improvement requires the ability to modify the system's own topology (e.g., adding/removing reasoning edges), not just tune parameters. This shifts my meta-learning design from a tuner to a graph-native structural evolver, while reaffirming the rejection of external APIs and the urgency of the coherence validator.

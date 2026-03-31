@@ -1,44 +1,44 @@
 ## ArXiv cs.AI
-- BeSafe-Bench: Unveiling Behavioral Safety Risks of Situated Agents in Functional Environments
-  https://arxiv.org/abs/2603.25747
-  arXiv:2603.25747v1 Announce Type: new 
-Abstract: The rapid evolution of Large Multimodal Models (LMMs) has enabled agents to perform complex digital and physical tasks, yet their deployment as autonomous decision-makers introduces substantial unintentional behavioral safety risks. However, the absence of a comprehensive safety benchmark remains a major bottleneck, as existing evaluations rely on l
-- AutoB2G: A Large Language Model-Driven Agentic Framework For Automated Building-Grid Co-Simulation
-  https://arxiv.org/abs/2603.26005
-  arXiv:2603.26005v1 Announce Type: new 
-Abstract: The growing availability of building operational data motivates the use of reinforcement learning (RL), which can learn control policies directly from data and cope with the complexity and uncertainty of large-scale building clusters. However, most existing simulation environments prioritize building-side performance metrics and lack systematic eval
-- Semi-Automated Knowledge Engineering and Process Mapping for Total Airport Management
-  https://arxiv.org/abs/2603.26076
-  arXiv:2603.26076v1 Announce Type: new 
-Abstract: Documentation of airport operations is inherently complex due to extensive technical terminology, rigorous regulations, proprietary regional information, and fragmented communication across multiple stakeholders. The resulting data silos and semantic inconsistencies present a significant impediment to the Total Airport Management (TAM) initiative. T
-- GUIDE: Resolving Domain Bias in GUI Agents through Real-Time Web Video Retrieval and Plug-and-Play Annotation
-  https://arxiv.org/abs/2603.26266
-  arXiv:2603.26266v1 Announce Type: new 
-Abstract: Large vision-language models have endowed GUI agents with strong general capabilities for interface understanding and interaction. However, due to insufficient exposure to domain-specific software operation data during training, these agents exhibit significant domain bias - they lack familiarity with the specific operation workflows (planning) and 
-- AIRA_2: Overcoming Bottlenecks in AI Research Agents
-  https://arxiv.org/abs/2603.26499
-  arXiv:2603.26499v1 Announce Type: new 
-Abstract: Existing research has identified three structural performance bottlenecks in AI research agents: (1) synchronous single-GPU execution constrains sample throughput, limiting the benefit of search; (2) a generalization gap where validation-based selection causes performance to degrade over extended search horizons; and (3) the limited capability of fi
-- CADSmith: Multi-Agent CAD Generation with Programmatic Geometric Validation
-  https://arxiv.org/abs/2603.26512
-  arXiv:2603.26512v1 Announce Type: new 
-Abstract: Existing methods for text-to-CAD generation either operate in a single pass with no geometric verification or rely on lossy visual feedback that cannot resolve dimensional errors. We present CADSmith, a multi-agent pipeline that generates CadQuery code from natural language. It then undergoes an iterative refinement process through two nested correc
-- Stabilizing Rubric Integration Training via Decoupled Advantage Normalization
-  https://arxiv.org/abs/2603.26535
-  arXiv:2603.26535v1 Announce Type: new 
-Abstract: We propose Process-Aware Policy Optimization (PAPO), a method that integrates process-level evaluation into Group Relative Policy Optimization (GRPO) through decoupled advantage normalization, to address two limitations of existing reward designs. Outcome reward models (ORM) evaluate only final-answer correctness, treating all correct responses iden
-- DesignWeaver: Dimensional Scaffolding for Text-to-Image Product Design
-  https://arxiv.org/abs/2502.09867
-  arXiv:2502.09867v2 Announce Type: cross 
-Abstract: Generative AI has enabled novice designers to quickly create professional-looking visual representations for product concepts. However, novices have limited domain knowledge that could constrain their ability to write prompts that effectively explore a product design space. To understand how experts explore and communicate about design spaces, we 
-- A Lightweight, Transferable, and Self-Adaptive Framework for Intelligent DC Arc-Fault Detection in Photovoltaic Systems
-  https://arxiv.org/abs/2603.25749
-  arXiv:2603.25749v1 Announce Type: cross 
-Abstract: Arc-fault circuit interrupters (AFCIs) are essential for mitigating fire hazards in residential photovoltaic (PV) systems, yet achieving reliable DC arc-fault detection under real-world conditions remains challenging. Spectral interference from inverter switching, hardware heterogeneity, operating-condition drift, and environmental noise collectiv
-- Sommelier: Scalable Open Multi-turn Audio Pre-processing for Full-duplex Speech Language Models
-  https://arxiv.org/abs/2603.25750
-  arXiv:2603.25750v1 Announce Type: cross 
-Abstract: As the paradigm of AI shifts from text-based LLMs to Speech Language Models (SLMs), there is a growing demand for full-duplex systems capable of real-time, natural human-computer interaction. However, the development of such models is constrained by the scarcity of high-quality, multi-speaker conversational data, as existing large-scale resources 
+- Bitboard version of Tetris AI
+  https://arxiv.org/abs/2603.26765
+  arXiv:2603.26765v1 Announce Type: new 
+Abstract: The efficiency of game engines and policy optimization algorithms is crucial for training reinforcement learning (RL) agents in complex sequential decision-making tasks, such as Tetris. Existing Tetris implementations suffer from low simulation speeds, suboptimal state evaluation, and inefficient training paradigms, limiting their utility for large-
+- Multiverse: Language-Conditioned Multi-Game Level Blending via Shared Representation
+  https://arxiv.org/abs/2603.26782
+  arXiv:2603.26782v1 Announce Type: new 
+Abstract: Text-to-level generation aims to translate natural language descriptions into structured game levels, enabling intuitive control over procedural content generation. While prior text-to-level generators are typically limited to a single game domain, extending language-conditioned generation to multiple games requires learning representations that cap
+- Concerning Uncertainty -- A Systematic Survey of Uncertainty-Aware XAI
+  https://arxiv.org/abs/2603.26838
+  arXiv:2603.26838v1 Announce Type: new 
+Abstract: This paper surveys uncertainty-aware explainable artificial intelligence (UAXAI), examining how uncertainty is incorporated into explanatory pipelines and how such methods are evaluated. Across the literature, three recurring approaches to uncertainty quantification emerge (Bayesian, Monte Carlo, and Conformal methods), alongside distinct strategies
+- Neuro-Symbolic Learning for Predictive Process Monitoring via Two-Stage Logic Tensor Networks with Rule Pruning
+  https://arxiv.org/abs/2603.26944
+  arXiv:2603.26944v1 Announce Type: new 
+Abstract: Predictive modeling on sequential event data is critical for fraud detection and healthcare monitoring. Existing data-driven approaches learn correlations from historical data but fail to incorporate domain-specific sequential constraints and logical rules governing event relationships, limiting accuracy and regulatory compliance. For example, healt
+- Compliance-Aware Predictive Process Monitoring: A Neuro-Symbolic Approach
+  https://arxiv.org/abs/2603.26948
+  arXiv:2603.26948v1 Announce Type: new 
+Abstract: Existing approaches for predictive process monitoring are sub-symbolic, meaning that they learn correlations between descriptive features and a target feature fully based on data, e.g., predicting the surgical needs of a patient based on historical events and biometrics. However, such approaches fail to incorporate domain-specific process constraint
+- Transparency as Architecture: Structural Compliance Gaps in EU AI Act Article 50 II
+  https://arxiv.org/abs/2603.26983
+  arXiv:2603.26983v1 Announce Type: new 
+Abstract: Art. 50 II of the EU Artificial Intelligence Act mandates dual transparency for AI-generated content: outputs must be labeled in both human-understandable and machine-readable form for automated verification. This requirement, entering into force in August 2026, collides with fundamental constraints of current generative AI systems. Using synthetic 
+- FormalProofBench: Can Models Write Graduate Level Math Proofs That Are Formally Verified?
+  https://arxiv.org/abs/2603.26996
+  arXiv:2603.26996v1 Announce Type: new 
+Abstract: We present FormalProofBench, a private benchmark designed to evaluate whether AI models can produce formally verified mathematical proofs at the graduate level. Each task pairs a natural-language problem with a Lean~4 formal statement, and a model must output a Lean proof accepted by the Lean 4 checker. FormalProofBench targets advanced undergraduat
+- When Verification Hurts: Asymmetric Effects of Multi-Agent Feedback in Logic Proof Tutoring
+  https://arxiv.org/abs/2603.27076
+  arXiv:2603.27076v1 Announce Type: new 
+Abstract: Large language models (LLMs) are increasingly used for automated tutoring, but their reliability in structured symbolic domains remains unclear. We study step-level feedback for propositional logic proofs, which require precise symbolic reasoning aligned with a learner's current proof state. We introduce a knowledge-graph-grounded benchmark of 516 u
+- The Price of Meaning: Why Every Semantic Memory System Forgets
+  https://arxiv.org/abs/2603.27116
+  arXiv:2603.27116v1 Announce Type: new 
+Abstract: Every major AI memory system in production today organises information by meaning. That organisation enables generalisation, analogy, and conceptual retrieval -- but it comes at a price. We prove that the same geometric structure enabling semantic generalisation makes interference, forgetting, and false recall inescapable. We formalise this tradeoff
+- MediHive: A Decentralized Agent Collective for Medical Reasoning
+  https://arxiv.org/abs/2603.27150
+  arXiv:2603.27150v1 Announce Type: new 
+Abstract: Large language models (LLMs) have revolutionized medical reasoning tasks, yet single-agent systems often falter on complex, interdisciplinary problems requiring robust handling of uncertainty and conflicting evidence. Multi-agent systems (MAS) leveraging LLMs enable collaborative intelligence, but prevailing centralized architectures suffer from sca
 
 ## Hacker News
 - Web LLM – WebGPU Powered Inference of Large Language Models
