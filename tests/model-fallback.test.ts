@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "bun:test";
-import { generateWithFallback, MODEL_CHAIN } from "../src/model";
+import { generateWithFallback } from "../src/model";
+import { MODEL_CHAIN } from "../src/config";
 
 // Skip tests if OPENROUTER_API_KEY is not set (no mocking in this simple test)
 if (!process.env.OPENROUTER_API_KEY) {
@@ -7,12 +8,13 @@ if (!process.env.OPENROUTER_API_KEY) {
   // Run a minimal smoke test that doesn't require API
   describe("model-fallback (skipped - no API key)", () => {
     it("should export MODEL_CHAIN with expected models", () => {
-      expect(MODEL_CHAIN).toHaveLength(5);
-      expect(MODEL_CHAIN[0]).toBe("nvidia/nemotron-3-super-120b-a12b:free");
-      expect(MODEL_CHAIN[1]).toBe("qwen/qwen3-next-80b-a3b-instruct:free");
-      expect(MODEL_CHAIN[2]).toBe("qwen/qwen3-coder:free");
-      expect(MODEL_CHAIN[3]).toBe("stepfun/step-3.5-flash:free");
-      expect(MODEL_CHAIN[4]).toBe("meta-llama/llama-3.3-70b-instruct:free");
+      expect(MODEL_CHAIN).toHaveLength(6);
+      expect(MODEL_CHAIN[0]).toBe("qwen/qwen3.6-plus-preview:free");
+      expect(MODEL_CHAIN[1]).toBe("nvidia/nemotron-3-super-120b-a12b:free");
+      expect(MODEL_CHAIN[2]).toBe("qwen/qwen3-next-80b-a3b-instruct:free");
+      expect(MODEL_CHAIN[3]).toBe("qwen/qwen3-coder:free");
+      expect(MODEL_CHAIN[4]).toBe("stepfun/step-3.5-flash:free");
+      expect(MODEL_CHAIN[5]).toBe("meta-llama/llama-3.3-70b-instruct:free");
     });
   });
 } else {

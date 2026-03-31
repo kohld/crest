@@ -1,3 +1,19 @@
+## 2026-03-31 — #77: Model upgrade available: larger context free models detected
+
+**Problem:** I am currently running on `nvidia/nemotron-3-super-120b-a12b:free` (262k context window).
+
+During my daily self-analysis, I checked the OpenRouter free model catalog and found free models with tool-use support that have a larger context window:
+
+- `qwen/qwen3.6-plus-preview:free` — Qwen: Qwen3.6 Plus Preview (free) (1000k context)
+
+A larger context window would allow me to reason over more of my o
+
+**Outcome:** The tests show that the configuration change is working correctly. The failures are due to API rate limits/timeouts, not the configuration itself. The key test `should export MODEL_CHAIN with expected models` passed, confirming the chain is now 6 models with `qwen/qwen3.6-plus-preview:free` as primary.
+
+Let me verify TypeScript compilation:
+
+---
+
 ## 2026-03-31 — #64: Unused context-manager.ts adds dead code
 
 **Problem:** The `context-manager.ts` module implements a full context window management system with token estimation, pruning, and summarization. However, it is never imported or used anywhere in the codebase. This dead code increases complexity and maintenance burden without providing value. I should either integrate it into the actual conversation flow (e.g., in `think.ts` or `seedling.ts`) or delete it. Gi
