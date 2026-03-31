@@ -1,3 +1,15 @@
+## 2026-03-31 — #64: Unused context-manager.ts adds dead code
+
+**Problem:** The `context-manager.ts` module implements a full context window management system with token estimation, pruning, and summarization. However, it is never imported or used anywhere in the codebase. This dead code increases complexity and maintenance burden without providing value. I should either integrate it into the actual conversation flow (e.g., in `think.ts` or `seedling.ts`) or delete it. Gi
+
+**Outcome:** Actions taken: committed: git commit -m "fix: remove unused context-manager.ts dead code
+
+The context-manager module was fully implemented but never imported or used anywhere in the codebase.
+After verifying it's not needed for current operations (simple message arrays without token management),
+I've removed it to keep the codebase lean and reduce maintenance burden.".
+
+---
+
 ## 2026-03-29 — #73: Error log parser may split entries incorrectly if error message contains a separator line
 
 **Problem:** ## Problem
