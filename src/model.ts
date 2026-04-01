@@ -3,7 +3,7 @@
 
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText } from "ai";
-import type { Parameters as GenerateTextParameters } from "ai";
+
 import { MODEL_CHAIN } from "./config";
 
 

@@ -1,4 +1,3 @@
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText, tool, NoSuchToolError, APICallError } from "ai";
 import { z } from "zod";
 import { resolve } from "path";
@@ -6,51 +5,9 @@ import { realpath } from "fs/promises";
 import { prependEntry, readMemory } from "./memory";
 import { listOpenIssues, closeIssue, openIssue } from "./github";
 import { enforcePolicy } from "./policy";
-import { MODEL_CHAIN } from "./config";
+import { generateWithFallback } from "./model";
 
 
-/**
- * Try each model in MODEL_CHAIN until one succeeds.
- * For each model, retry up to 3 times with exponential backoff on transient errors (429, 400, 503).
- * Skips to next model after exhausting retries for current model.
- * Throws after all models are exhausted.
- */
-async function generateWithFallback(args: Parameters<typeof generateText>[0]): ReturnType<typeof generateText> {
-  let lastError: unknown;
-
-  for (const modelId of MODEL_CHAIN) {
-    let retriesLeft = 3;
-    let delayMs = 100;
-
-    while (retriesLeft > 0) {
-      try {
-        console.log(`Using model: ${modelId} (retries left: ${retriesLeft})`);
-        return await generateText({ ...args, model: openrouter(modelId) });
-      } catch (e: any) {
-        const status = e?.statusCode ?? e?.cause?.statusCode;
-        const isTransient = status === 429 || status === 400 || status === 503;
-
-        if (!isTransient || retriesLeft === 1) {
-          // If non-transient or no retries left, break out of retry loop for this model
-          lastError = e;
-          break;
-        }
-
-        // Wait and retry with exponential backoff
-        console.warn(`Model ${modelId} transient error (${status}), retrying in ${delayMs}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-        retriesLeft--;
-        delayMs *= 2;
-      }
-    }
-  }
-
-  throw new Error(
-    `All models exhausted. Last error: ${lastError instanceof Error ? lastError.message : String(lastError)}`
-  );
-}
-
-const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 const ROOT = import.meta.dir.replace("/src", "");
 
 // History files must never be overwritten — only prepended via TypeScript code
@@ -394,38 +351,8 @@ export async function seedling(): Promise<void> {
 
   let text = "";
 
-  // Wrapper for generateWithFallback with retry logic on transient errors
-  async function generateWithFallbackRetry(args: Parameters<typeof generateWithFallback>[0]): ReturnType<typeof generateWithFallback> {
-    let lastError: unknown;
-    let retriesLeft = 3;
-    let delayMs = 100;
-
-    while (retriesLeft > 0) {
-      try {
-        return await generateWithFallback(args);
-      } catch (e: any) {
-        const status = e?.statusCode ?? e?.cause?.statusCode;
-        const isTransient = status === 429 || status === 400 || status === 503;
-
-        if (!isTransient || retriesLeft === 1) {
-          // If non-transient or no retries left, throw the error
-          lastError = e;
-          break;
-        }
-
-        // Wait and retry with exponential backoff
-        console.warn(`Transient error (${status}), retrying in ${delayMs}ms... (${retriesLeft - 1} retries left)`);
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-        retriesLeft--;
-        delayMs *= 2;
-      }
-    }
-
-    throw lastError;
-  }
-
   try {
-    const result = await generateWithFallbackRetry({
+    const result = await generateWithFallback({
       system: systemPrompt,
       prompt: `Issue #${issue.number}: ${issue.title}\n\n${issue.body}`,
       maxSteps: 20,
@@ -436,7 +363,7 @@ export async function seedling(): Promise<void> {
           console.warn(`Unknown tool '${toolCall.toolName}' — skipping.`);
           return null;
         }
-        const { text: repairedArgs } = await generateWithFallbackRetry({
+        const { text: repairedArgs } = await generateWithFallback({
           system: system ?? "",
           messages: [
             ...messages,
