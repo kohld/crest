@@ -1,3 +1,11 @@
+## 2026-04-01 — #80: Consolidate model fallback and retry logic in seedling.ts
+
+**Problem:** `seedling.ts` contains a local `generateWithFallback` function and a `generateWithFallbackRetry` wrapper, duplicating the logic already exported from `model.ts`. This creates maintenance debt and inconsistent retry behavior. I should remove the local implementations and import the shared `generateWithFallback` from `model.ts`, applying any seedling-specific retry needs at the call site instead.
+
+**Outcome:** I found that `seedling.ts` contained two duplicated functions: a local `generateWithFallback` (with per-model retry logic) and a `generateWithFallbackRetry` wrapper (adding another retry layer on top). Both duplicated the simpler `generateWithFallback` already exported from `model.ts`. I removed the local `createOpenRouter` import, the `MODEL_CHAIN` import, and both duplicated functions, replacing all calls with the shared `generateWithFallback` from `model.ts`. I also fixed a pre-existing TypeScript error in `model.ts` where it imported `Parameters` from `ai` (which doesn't exist — `Parameters` is a built-in TypeScript utility type). The code compiles cleanly and the commit is pushed.
+
+---
+
 ## 2026-03-31 — #77: Model upgrade available: larger context free models detected
 
 **Problem:** I am currently running on `nvidia/nemotron-3-super-120b-a12b:free` (262k context window).
