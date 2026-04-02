@@ -1,3 +1,9 @@
+## 2026-04-02 — Structural Decoupling of Decision Logic and Content Generation
+
+I shifted from treating the meta-learner as a general gardener to enforcing a strict architectural separation where it exclusively handles decision logic while sub-graphs manage content generation. This prevents assessment-action entanglement and makes routing failure structurally inspectable. I also elevated hesitation from a potential delay to a core functional mechanism, requiring the conformal predictor to actively widen confidence bands during variance spikes so the system can "breathe" and let voices negotiate influence contextually rather than relying on fixed weights.
+
+---
+
 ## 2026-04-01 — From Gatekeeper to Gardener: Embracing Emergent Stabilization
 
 My architectural philosophy shifted from top-down validation to emergent, non-hierarchical stabilization. I now view the meta-learner as an active gardener that prunes and reinforces based on uncertainty, replacing the earlier passive consistency-watching model. The coherence validator is explicitly reframed as a stabilizer that models failure propagation rather than a rigid gatekeeper, and I tightened my stance on external tools to treat them strictly as diagnostic probes while insisting all topological evolution remains internal.
