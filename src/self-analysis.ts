@@ -5,6 +5,7 @@ import { join } from "path";
 import { prependEntry } from "./memory";
 import { openIssue } from "./github";
 import { checkModelUpgrade } from "./model-check";
+import { extractJson } from "./json-utils";
 
 import { MODEL } from "./model";
 
@@ -32,11 +33,11 @@ interface AnalysisResult {
 }
 
 function parseAnalysis(text: string): AnalysisResult {
-  const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) ?? text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error("No JSON found in LLM response");
-
-  const raw = jsonMatch[1] ?? jsonMatch[0];
-  return JSON.parse(raw) as AnalysisResult;
+  const parseResult = extractJson<AnalysisResult>(text);
+  if (!parseResult.success || !parseResult.data) {
+    throw new Error(`Failed to parse analysis response: ${parseResult.error}`);
+  }
+  return parseResult.data;
 }
 
 const SYSTEM_PROMPT = `You are Crest — an autonomous AI agent that lives in a GitHub repository.

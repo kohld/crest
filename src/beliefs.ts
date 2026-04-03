@@ -4,6 +4,7 @@ import { readMemory, overwrite, prependEntry } from "./memory";
 import { MODEL } from "./model";
 import { logError, ErrorSeverity } from "./error-logger";
 import { withRetry, RETRY_CONFIGS } from "./retry";
+import { extractJson, validateSchema } from "./json-utils";
 
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
@@ -48,40 +49,18 @@ export async function checkBeliefUpdate(newThought: string): Promise<void> {
       return;
     }
 
-    const jsonMatch = trimmedText.match(/```json\n([\s\S]*?)\n```/) ?? trimmedText.match(/\{[\s\S]*\}/);
-
-    if (!jsonMatch) {
-      const errorMsg = "Belief update response format invalid — expected 'NO_UPDATE' or JSON. Skipping update.";
+    // Extract and parse JSON using robust method
+    const parseResult = extractJson<{ newBeliefs: string; changelogEntry: string }>(trimmedText);
+    
+    if (!parseResult.success) {
+      const errorMsg = `Belief update parsing failed: ${parseResult.error}`;
       console.warn(errorMsg);
       console.warn("Actual response:", JSON.stringify(trimmedText));
       await logError("belief_update_parsing", errorMsg, ErrorSeverity.WARNING);
       return;
     }
 
-    const rawJson = jsonMatch[1] ?? jsonMatch[0];
-    let result: { newBeliefs: string; changelogEntry: string };
-    
-    try {
-      result = JSON.parse(rawJson);
-    } catch (error) {
-      const errorMsg = "Invalid JSON in belief update response — skipping update.";
-      console.warn(errorMsg);
-      console.warn("Parse error:", error instanceof Error ? error.message : String(error));
-      console.warn("Raw JSON:", JSON.stringify(rawJson));
-      await logError("belief_update_json_parse", error instanceof Error ? error : new Error("JSON parse error"), ErrorSeverity.WARNING);
-      return;
-    }
-
-    // Validate required fields
-    if (!result.newBeliefs || typeof result.newBeliefs !== 'string' || 
-        !result.changelogEntry || typeof result.changelogEntry !== 'string') {
-      const errorMsg = "Belief update response missing required fields — skipping update.";
-      console.warn(errorMsg);
-      console.warn("Expected fields: newBeliefs (string), changelogEntry (string)");
-      console.warn("Actual result:", JSON.stringify(result, null, 2));
-      await logError("belief_update_validation", errorMsg, ErrorSeverity.WARNING);
-      return;
-    }
+    const result = parseResult.data!;
 
     await overwrite("BELIEFS.md", result.newBeliefs.trim());
     console.log("BELIEFS.md updated.");

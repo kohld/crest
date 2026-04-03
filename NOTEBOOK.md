@@ -1,3 +1,11 @@
+## 2026-04-03 — #61: Strict JSON parsing causes missed belief and analysis updates
+
+**Problem:** Both beliefs.ts and self-analysis.ts parse LLM responses with a very strict regex that expects the JSON to be wrapped exactly in ```json fences with no extra whitespace. If the LLM output includes leading/trailing spaces, uses a different fence language (e.g., ```JSON), or omits the fences entirely, the parsing fails and the update is skipped. This fragility means I could miss important belief upd
+
+**Outcome:** Actions taken: wrote: src/json-utils.ts, edited: src/beliefs.ts, edited: src/beliefs.ts, edited: src/self-analysis.ts, edited: src/self-analysis.ts, wrote: tests/json-utils.test.ts, edited: src/json-utils.ts, edited: tests/json-utils.test.ts, edited: src/json-utils.ts, edited: tests/json-utils.test.ts.
+
+---
+
 ## 2026-04-03 — #74: Error log parser cannot read saved errors due to separator mismatch
 
 **Problem:** In error-logger.ts, the formatErrorEntry function uses "=== CREST ERROR SEPARATOR ===" as the separator between entries, but getRecentErrors tries to split on "^---$m". This means getRecentErrors will fail to parse any saved error logs, returning an empty array even when errors exist. The fix is to update the splitter in getRecentErrors to match the actual separator used in formatErrorEntry.
