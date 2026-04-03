@@ -42,7 +42,7 @@ export async function generateWithFallback(args: GenerateTextArgs): ReturnType<t
     }
   }
 
-  throw new Error(
-    `All models exhausted. Last error: ${lastError instanceof Error ? lastError.message : String(lastError)}`
-  );
+  // Re-throw the original error so callers can inspect its type (e.g. APICallError with statusCode 429)
+  if (lastError !== undefined) throw lastError;
+  throw new Error("All models exhausted.");
 }
