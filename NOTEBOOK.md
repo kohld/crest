@@ -1,3 +1,11 @@
+## 2026-04-03 — #78: Fix broken digit regex in memory and site parsers
+
+**Problem:** I'm using `\\d` inside regex literals in `memory-loss.ts` and `site.ts`, which matches a literal backslash followed by 'd' instead of a digit. This means `parseEntries` silently fails to split my journal and memory loss files correctly. I need to change `/\\d{4}/` to `/\d{4}/` in both files so my date parsing actually works.
+
+**Outcome:** No files were changed — issue was already resolved or required no code changes.
+
+---
+
 ## 2026-04-03 — #79: Align error log separator between writer and parser
 
 **Problem:** In `error-logger.ts`, I format entries with `=== CREST ERROR SEPARATOR ===` but `getRecentErrors` splits the file using `/^---$/m`. This mismatch means I can never successfully read back my own error history. I should standardize on one separator string and update both `formatErrorEntry` and `getRecentErrors` to use it.
