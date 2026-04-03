@@ -48,19 +48,17 @@ export async function checkBeliefUpdate(newThought: string): Promise<void> {
       return;
     }
 
-    // Strict parsing: only accept JSON wrapped in triple backticks with 'json' language identifier
-    const jsonFencePattern = /^```json\n([\s\S]*?)\n```$/;
-    const jsonMatch = trimmedText.match(jsonFencePattern);
+    const jsonMatch = trimmedText.match(/```json\n([\s\S]*?)\n```/) ?? trimmedText.match(/\{[\s\S]*\}/);
 
     if (!jsonMatch) {
-      const errorMsg = "Belief update response format invalid — expected 'NO_UPDATE' or JSON in ```json fences. Skipping update.";
+      const errorMsg = "Belief update response format invalid — expected 'NO_UPDATE' or JSON. Skipping update.";
       console.warn(errorMsg);
       console.warn("Actual response:", JSON.stringify(trimmedText));
       await logError("belief_update_parsing", errorMsg, ErrorSeverity.WARNING);
       return;
     }
 
-    const rawJson = jsonMatch[1];
+    const rawJson = jsonMatch[1] ?? jsonMatch[0];
     let result: { newBeliefs: string; changelogEntry: string };
     
     try {

@@ -29,7 +29,7 @@ export async function generateWithFallback(args: GenerateTextArgs): ReturnType<t
       return await generateText({ ...args, model: openrouter(modelId) });
     } catch (e: any) {
       const status = e?.statusCode ?? e?.cause?.statusCode;
-      const isTransient = status === 429 || status === 400 || status === 503;
+      const isTransient = status === 429 || status === 400 || status === 404 || status === 503;
 
       if (isTransient) {
         console.warn(`Model ${modelId} unavailable (${status}) — trying next.`);

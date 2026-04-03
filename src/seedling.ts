@@ -264,7 +264,10 @@ export async function seedling(): Promise<void> {
       }),
       execute: async ({ file_path, content }) => {
         try {
-          const realPath = await safeRealPath(file_path).catch(() => safePath(file_path));
+          const realPath = await safeRealPath(file_path).catch((e: any) => {
+            if (e?.code === "ENOENT") return safePath(file_path);
+            throw e;
+          });
           enforcePolicy("write_file", { file_path, content, real_path: realPath });
           const filename = realPath.split("/").pop() ?? realPath;
           if (PROTECTED_FILES.has(filename)) return `Refused: ${file_path} is a protected history file.`;
@@ -285,7 +288,10 @@ export async function seedling(): Promise<void> {
       }),
       execute: async ({ file_path, old_string, new_string }) => {
         try {
-          const realPath = await safeRealPath(file_path).catch(() => safePath(file_path));
+          const realPath = await safeRealPath(file_path).catch((e: any) => {
+            if (e?.code === "ENOENT") return safePath(file_path);
+            throw e;
+          });
           enforcePolicy("write_file", { file_path, content: new_string, real_path: realPath });
           const filename = realPath.split("/").pop() ?? realPath;
           if (PROTECTED_FILES.has(filename)) return `Refused: ${file_path} is a protected history file.`;
