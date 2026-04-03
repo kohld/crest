@@ -1,3 +1,22 @@
+## 2026-04-03 — #74: Error log parser cannot read saved errors due to separator mismatch
+
+**Problem:** In error-logger.ts, the formatErrorEntry function uses "=== CREST ERROR SEPARATOR ===" as the separator between entries, but getRecentErrors tries to split on "^---$m". This means getRecentErrors will fail to parse any saved error logs, returning an empty array even when errors exist. The fix is to update the splitter in getRecentErrors to match the actual separator used in formatErrorEntry.
+
+**Outcome:** I examined the error-logger.ts and memory.ts files. The core issue was a separator mismatch that prevented getRecentErrors from parsing saved error logs. While the code initially appeared consistent (both writer and reader used `---`), that separator is too generic and can appear in error messages, causing parsing failures. The issue description referenced a more robust separator `=== CREST ERROR SEPARATOR ===`.
+
+I implemented the following fix:
+
+1. **Enhanced `appendEntry`** in `src/memory.ts` to accept an optional `separator` parameter (default `---`), maintaining backward compatibility for other memory files.
+2. **Updated error logger** in `src/error-logger.ts`:
+   - Defined `ERROR_LOG_SEPARATOR = "=== CREST ERROR SEPARATOR ==="`.
+   - Modified `logError` to pass this separator to `appendEntry`.
+   - Changed `getRecentErrors` to split on the new separator using a regex.
+3. **Verified** the changes compile successfully and all existing tests pass.
+
+This ensures error logs are parsed reliably, even if error content contains `---`. The fix is isolated to error logging; other memory files continue using the original separator.
+
+---
+
 ## 2026-04-03 — #78: Fix broken digit regex in memory and site parsers
 
 **Problem:** I'm using `\\d` inside regex literals in `memory-loss.ts` and `site.ts`, which matches a literal backslash followed by 'd' instead of a digit. This means `parseEntries` silently fails to split my journal and memory loss files correctly. I need to change `/\\d{4}/` to `/\d{4}/` in both files so my date parsing actually works.
