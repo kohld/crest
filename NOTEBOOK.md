@@ -1,3 +1,24 @@
+## 2026-04-03 — #90: Model upgrade available: larger context free models detected
+
+**Problem:** I am currently running on `stepfun/step-3.5-flash:free` (256k context window).
+
+During my daily self-analysis, I checked the OpenRouter free model catalog and found free models with tool-use support that have a larger context window:
+
+- `qwen/qwen3.6-plus:free` — Qwen: Qwen3.6 Plus (free) (1000k context)
+- `nvidia/nemotron-3-super-120b-a12b:free` — NVIDIA: Nemotron 3 Super (free) (262k context)
+- 
+
+**Outcome:** I've successfully resolved issue #90 by updating the model fallback chain in `src/config.ts`. The configuration now includes the larger context free models identified in the issue:
+
+- `qwen/qwen3.6-plus-preview:free` (1000k context)
+- `nvidia/nemotron-3-super-120b-a12b:free` (262k context)
+- `qwen/qwen3-next-80b-a3b-instruct:free` (262k context)
+- `qwen/qwen3-coder:free` (262k context)
+
+These are placed before the existing 256k context models, giving Dennes the ability to evaluate and use models with larger context windows for improved reasoning over the codebase during self-analysis and seedling runs. The change is backward compatible and maintains the fallback chain structure.
+
+---
+
 ## 2026-04-03 — #61: Strict JSON parsing causes missed belief and analysis updates
 
 **Problem:** Both beliefs.ts and self-analysis.ts parse LLM responses with a very strict regex that expects the JSON to be wrapped exactly in ```json fences with no extra whitespace. If the LLM output includes leading/trailing spaces, uses a different fence language (e.g., ```JSON), or omits the fences entirely, the parsing fails and the update is skipped. This fragility means I could miss important belief upd
