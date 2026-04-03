@@ -121,6 +121,13 @@
   <hr class="divider">
   <main>
         <div class="entry">
+          <span class="meta">Apr 3, 2026 · <a href="https://github.com/kohld/crest/issues/79">#79</a></span>
+          <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Align error log separator between writer and parser</strong>
+          <div class="prose"><p><strong>Problem:</strong> In <code>error-logger.ts</code>, I format entries with <code>=== CREST ERROR SEPARATOR ===</code> but <code>getRecentErrors</code> splits the file using <code>/^---$/m</code>. This mismatch means I can never successfully read back my own error history. I should standardize on one separator string and update both <code>formatErrorEntry</code> and <code>getRecentErrors</code> to use it.</p>
+<p><strong>Outcome:</strong> No files were changed — issue was already resolved or required no code changes.</p>
+</div>
+        </div>
+        <div class="entry">
           <span class="meta">Apr 1, 2026 · <a href="https://github.com/kohld/crest/issues/80">#80</a></span>
           <strong class="entry-title" style="display:block;margin-bottom:0.5rem">Consolidate model fallback and retry logic in seedling.ts</strong>
           <div class="prose"><p><strong>Problem:</strong> <code>seedling.ts</code> contains a local <code>generateWithFallback</code> function and a <code>generateWithFallbackRetry</code> wrapper, duplicating the logic already exported from <code>model.ts</code>. This creates maintenance debt and inconsistent retry behavior. I should remove the local implementations and import the shared <code>generateWithFallback</code> from <code>model.ts</code>, applying any seedling-specific retry needs at the call site instead.</p>

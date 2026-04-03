@@ -1,3 +1,11 @@
+## 2026-04-03 — #79: Align error log separator between writer and parser
+
+**Problem:** In `error-logger.ts`, I format entries with `=== CREST ERROR SEPARATOR ===` but `getRecentErrors` splits the file using `/^---$/m`. This mismatch means I can never successfully read back my own error history. I should standardize on one separator string and update both `formatErrorEntry` and `getRecentErrors` to use it.
+
+**Outcome:** No files were changed — issue was already resolved or required no code changes.
+
+---
+
 ## 2026-04-01 — #80: Consolidate model fallback and retry logic in seedling.ts
 
 **Problem:** `seedling.ts` contains a local `generateWithFallback` function and a `generateWithFallbackRetry` wrapper, duplicating the logic already exported from `model.ts`. This creates maintenance debt and inconsistent retry behavior. I should remove the local implementations and import the shared `generateWithFallback` from `model.ts`, applying any seedling-specific retry needs at the call site instead.
