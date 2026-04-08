@@ -11,11 +11,11 @@ import { generateWithFallback } from "./model";
 const ROOT = import.meta.dir.replace("/src", "");
 
 // History files must never be overwritten — only prepended via TypeScript code
-// model.ts is also protected: model selection requires human approval
+// config.ts and model.ts are protected: model/config changes require human approval
 const PROTECTED_FILES = new Set([
   "NOTEBOOK.md", "THOUGHTS.md", "BELIEFS.md", "CHANGELOG.md",
   "SELF_ANALYSIS.md", "MEMORY_LOSS.md", "IDENTITY.md",
-  "model.ts",
+  "model.ts", "config.ts",
 ]);
 
 function todayString(): string {
@@ -232,7 +232,13 @@ export async function seedling(): Promise<void> {
   ]);
 
   // Prioritize issues labeled "seedling" (self-initiated builds) over self-analysis issues
-  const issue = issues.find((i) => i.labels.includes("seedling")) ?? issues[0];
+  // Skip model-upgrade issues — those require human review, not autonomous implementation
+  const workableIssues = issues.filter((i) => !i.labels.includes("model-upgrade"));
+  if (workableIssues.length === 0) {
+    console.log("No workable issues (only model-upgrade issues found). Seedling idle.");
+    return;
+  }
+  const issue = workableIssues.find((i) => i.labels.includes("seedling")) ?? workableIssues[0];
   console.log(`Seedling working on issue #${issue.number}: ${issue.title}`);
 
   const actionsLog: string[] = [];

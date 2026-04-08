@@ -66,6 +66,7 @@ export const DEFAULT_POLICY: PolicyRule[] = [
       "\\bCHANGELOG\\.md\\b",
       "\\bSELF_ANALYSIS\\.md\\b",
       "\\bMEMORY_LOSS\\.md\\b",
+      "\\bconfig\\.ts\\b",
       // Sensitive files - match anywhere in the JSON string
       "\\.env",
       "id_rsa",
